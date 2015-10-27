@@ -1,16 +1,19 @@
 {
-    "private": true,
-    "dependencies": {
-        "chai": "^3.3.0",
-        "jscs": "^2.2.1",
-        "mocha": "^2.3.3",
-        "sinon": "^1.17.2",
-        "sinon-chai": "^2.8.0"
-    },
-    "scripts": {
-        "compile": "babel src --out-dir dist",
-        "start": "babel src  --watch --out-dir dist --source-maps",
-        "test": "npm run lint && npm run compile && mocha test/*",
-        "lint": "jscs src/"
-    }
+  "private": true,
+  "dependencies": {
+    "chai": "^3.3.0",
+    "jscs": "^2.2.1",
+    "mocha": "^2.3.3",
+    "sinon": "^1.17.2",
+    "sinon-chai": "^2.8.0"
+  },
+  "scripts": {
+    "compile": "babel src --out-dir dist",
+    "start": "babel src  --watch --out-dir dist --source-maps",
+    "test": "npm run lint && npm run compile && mocha test/*",
+    "lint": "jscs src/"
+  },
+  "devDependencies": {
+    "babel": "^5.8.29"
+  }
 }

@@ -56,7 +56,8 @@ lecturer.on('begin', daria, function () {
 * вызов события — `emit`
 
 ```js
-var lecturer = require('emitter').getEmitter();
+var getEmitter = require('./emitter');
+var lecturer = getEmitter();
 
 // подписываем студента daria на событие slide
 lecturer.on('slide', daria, function () {
@@ -124,3 +125,5 @@ lecturer.emit('slide'); // обработчик не выполнился
 lecturer.emit('slide'); // обработчик не выполнился
 lecturer.emit('slide'); // 'Новый слайд!'
 ```
+
+![](http://i.imgur.com/R3soz.jpg)

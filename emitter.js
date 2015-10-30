@@ -49,9 +49,8 @@ module.exports = function () {
                     if (value.events[name].type === 'default') {
                         value.events[name].callback();
                     }
-                    if (value.events[name].type === 'several' && value.events[name].n > 0) {
+                    if (value.events[name].type === 'several' && value.events[name].counter > 0) {
                         value.events[name].callback();
-                        value.events[name].n--;
                     }
                     if (value.events[name].type === 'through' && value.events[name].counter === 1) {
                         value.events[name].callback();

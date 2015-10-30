@@ -8,7 +8,8 @@ module.exports = function () {
                 studentEvents[eventName] = callback;
                 var newStudent = {
                     description: student,
-                    events: studentEvents
+                    events: studentEvents,
+                    isUsuall: true
                 };
                 students.push(newStudent);
             } else {
@@ -20,12 +21,6 @@ module.exports = function () {
             var index = this.findIndex(student);
             if (index != -1) {
                 var events = Object.keys(students[index].events);
-                /*for (var i = 0; i < events.length; i++) {
-                    if (eventName.indexOf(events[i]) != -1 || events[i] === eventName) {
-                        console.log('hey');
-                        delete students[index].events[events[i]];
-                    }
-                }*/
                 var toDelete = events.filter(function (ev) {
                     var isEqual = ev === eventName;
                     var isContained = ev.indexOf(eventName) != -1;
@@ -41,19 +36,61 @@ module.exports = function () {
             var namespace = this.getNamespace(eventName);
             students.forEach(function (student) {
                 namespace.forEach(function (name) {
-                    if (Object.keys(student.events).indexOf(name) != -1) {
-                        student.events[name].apply(student.description);
+                    if (student.hasOwnProperty('isUsuall')) {
+                        if (Object.keys(student.events).indexOf(name) != -1) {
+                            student.events[name].apply(student.description);
+                        }
+                    } else {
+                        var counts = student.events[name].counts;
+                        var called = student.events[name].called;
+                        var mod = -1;
+                        if (called > 0) {
+                            mod = called % counts;
+                        }
+                        if (student.hasOwnProperty('isThrough') && student.isThrough) {
+                            if (mod === 0) {
+                                student.events[name].apply(student.description);
+                            }
+                            student.events[name].called++;
+                        }
+                        if (student.hasOwnProperty('isSeveral') && student.isSeveral) {
+                            if (counts > called) {
+                                student.events[name].apply(student.description);
+                                student.events[name].called++;
+                            }
+                        }
                     }
                 });
             });
         },
 
         several: function (eventName, student, callback, n) {
-
+            this.add(eventName, student, callback, n, true, false);
         },
 
         through: function (eventName, student, callback, n) {
+            this.add(eventName, student, callback, n, false, true);
+        },
 
+        add: function (eventName, student, callback, n, isSeveral, isThrough) {
+            var index = this.findIndex(student);
+            if (index === -1) {
+                var studentEvents = [];
+                studentEvents[eventName] = callback;
+                studentEvents[eventName].counts = n;
+                studentEvents[eventName].called = 0;
+                var newStudent = {
+                    description: student,
+                    events: studentEvents,
+                    isSeveral: isSeveral,
+                    isThrough: isThrough
+                };
+                students.push(newStudent);
+            } else {
+                students[index].events[eventName] = callback;
+                students[index].events[eventName].counts = n;
+                students[index].events[eventName].called = 0;
+            }
         },
 
         getNamespace: function (eventName) {
@@ -77,13 +114,6 @@ module.exports = function () {
                 }
             }
             return -1;
-        },
-
-        print: function (student) {
-            var index = this.findIndex(student);
-            if (index != -1) {
-                console.log(students[index].events);
-            }
         }
     };
 };

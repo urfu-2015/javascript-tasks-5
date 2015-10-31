@@ -100,4 +100,42 @@ describe('Emitter', function () {
 
         expect(cb).to.have.been.calledOnce;
     });
+
+    it('Не должен рассылать сообщения по событию по истечению лимита рассылок (several)', function () {
+        var user = {};
+        var cb = sinon.spy();
+
+        ee.several('name', user, cb, 1);
+        ee.emit('name');
+        ee.emit('name');
+        ee.emit('name');
+
+        expect(cb).to.have.been.calledOnce;
+    });
+
+    it('Должен рассылать сообщения по событию на каждом шаге при N = 0 (through)', function () {
+        var user = {};
+        var cb = sinon.spy();
+        var n = 0;
+
+        ee.through('name', user, cb, n);
+        ee.emit('name');
+        ee.emit('name');
+
+        expect(cb).to.have.been.calledTwice;
+    });
+
+    it('Должен рассылать сообщения по событию только спустя каждые N шагов (through)', function () {
+        var user = {};
+        var cb = sinon.spy();
+        var n = 2;
+
+        ee.through('name', user, cb, n);
+        // 0 0 1 0 0 1 0 0
+        for (var i = 0; i < 8; ++i) {
+            ee.emit('name');
+        }
+
+        expect(cb).to.have.been.calledTwice;
+    });
 });

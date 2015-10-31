@@ -54,7 +54,7 @@ module.exports = function () {
                             student.events[name].called++;
                         }
                         if (student.hasOwnProperty('isSeveral') && student.isSeveral) {
-                            if (counts > called) {
+                            if (counts >= called) {
                                 student.events[name].apply(student.description);
                                 student.events[name].called++;
                             }
@@ -78,7 +78,7 @@ module.exports = function () {
                 var studentEvents = [];
                 studentEvents[eventName] = callback;
                 studentEvents[eventName].counts = n;
-                studentEvents[eventName].called = 0;
+                studentEvents[eventName].called = 1;
                 var newStudent = {
                     description: student,
                     events: studentEvents,
@@ -89,7 +89,7 @@ module.exports = function () {
             } else {
                 students[index].events[eventName] = callback;
                 students[index].events[eventName].counts = n;
-                students[index].events[eventName].called = 0;
+                students[index].events[eventName].called = 1;
             }
         },
 

@@ -119,9 +119,9 @@ lecturer.through('slide', daria, function () {
 }, 2); // обработчик должен выполниться на второй, четвёртый, шестой (и так далее) раз
 
 lecturer.emit('slide'); // обработчик не выполнился
-lecturer.emit('slide'); // обработчик не выполнился
 lecturer.emit('slide'); // 'Новый слайд!'
 lecturer.emit('slide'); // обработчик не выполнился
+lecturer.emit('slide'); // 'Новый слайд!'
 lecturer.emit('slide'); // обработчик не выполнился
 lecturer.emit('slide'); // 'Новый слайд!'
 ```

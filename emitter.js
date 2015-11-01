@@ -8,8 +8,7 @@ module.exports = function () {
             var currentLayer = studentWithEvent;
             for (var i in eventLayers) {
                 if (currentLayer[eventLayers[i]] === undefined) {
-                    currentLayer[eventLayers[i]] = {}
-
+                    currentLayer[eventLayers[i]] = {};
                 }
                 currentLayer = currentLayer[eventLayers[i]];
             }
@@ -37,7 +36,7 @@ module.exports = function () {
                 var currentLayer = this.students[index];
                 var stackOfFunctions = [];
                 for (var i = 0; i < eventLayers.length; i++) {
-                    if(currentLayer[eventLayers[i]] === undefined) {
+                    if (currentLayer[eventLayers[i]] === undefined) {
                         break;
                     }
                     var action = currentLayer[eventLayers[i]].action;

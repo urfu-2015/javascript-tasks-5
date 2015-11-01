@@ -6,9 +6,8 @@ module.exports = function () {
             var studentWithEvent = student;
             var isNewStudent = this.students.indexOf(student);
             var currentLayer = studentWithEvent;
-            for (var i in eventLayers){
-                if (currentLayer[eventLayers[i]] === undefined)
-                {
+            for (var i in eventLayers) {
+                if (currentLayer[eventLayers[i]] === undefined) {
                     currentLayer[eventLayers[i]] = {}
 
                 }
@@ -24,7 +23,7 @@ module.exports = function () {
             var indexCurrentStudents = this.students.indexOf(student);
             var eventLayers = eventName.split('.');
             var currentLayer = this.students[indexCurrentStudents];
-            for (var i = 0; i < eventLayers.length - 1; i++){
+            for (var i = 0; i < eventLayers.length - 1; i++) {
                 currentLayer = currentLayer[eventLayers[i]];
             }
             delete currentLayer[eventLayers[eventLayers.length - 1]];
@@ -34,29 +33,19 @@ module.exports = function () {
         emit: function (eventName) {
             console.log(eventName, 'event');
             var eventLayers = eventName.split('.');
-            for (var index in this.students){
+            for (var index in this.students) {
                 var currentLayer = this.students[index];
                 var stackOfFunctions = [];
-                for (var i = 0; i < eventLayers.length; i++)
-                {
-                    if(currentLayer[eventLayers[i]] === undefined)
-                    {
+                for (var i = 0; i < eventLayers.length; i++) {
+                    if(currentLayer[eventLayers[i]] === undefined) {
                         break;
                     }
                     var action = currentLayer[eventLayers[i]].action;
                     var bindedAction = action.bind(this.students[index]);
                     bindedAction();
-                    //stackOfFunctions.push(currentLayer[eventLayers[i]]);
-
                     currentLayer = currentLayer[eventLayers[i]];
                 }
-                //console.log(stackOfFunctions);
-                /*for (var i in stackOfFunctions)
-                {
-                    var action = stackOfFunctions.pop().action;
-                    var bindedAction = action.bind(this.students[index]);
-                    bindedAction();
-                }*/
+
             }
 
         },

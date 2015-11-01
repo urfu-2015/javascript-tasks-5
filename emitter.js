@@ -43,7 +43,7 @@ module.exports = function () {
         emit: function (eventName) {
             var currentEvents = eventName.split('.');
             if (currentEvents.length > 1) {
-                currentEvents = currentEvents.concat(eventName);
+                currentEvents.splice(1, 1, eventName);
             }
             currentEvents = currentEvents.reverse();
             currentEvents.forEach(function (event) {

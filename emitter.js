@@ -48,10 +48,8 @@ module.exports = function () {
                         }
                     } else {
                         for (var cb in listeners[index]['cbs']) {
-                            if (listeners[index]['cbs'].hasOwnProperty(cb)) {
-                                if (cb.indexOf(eventName) > -1) {
-                                    delete listeners[index]['cbs'][cb];
-                                }
+                            if (cb.indexOf(eventName) > -1) {
+                                delete listeners[index]['cbs'][cb];
                             }
                         }
                     }

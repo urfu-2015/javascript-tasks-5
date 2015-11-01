@@ -34,7 +34,7 @@ module.exports = function () {
     function off(eventName, student) {
         students.forEach(value => {
             Object.keys(value.events).forEach(name => {
-                if (name.startsWith(eventName)) {
+                if (eventName === name || isSubNamespace(name, eventName)) {
                     delete students.get(student).events[name];
                 }
             });

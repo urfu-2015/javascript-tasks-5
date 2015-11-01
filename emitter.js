@@ -39,7 +39,6 @@ module.exports = function () {
                 }
             });
         });
-        delete students.get(student).events[eventName];
     }
 
     function emit(eventName) {

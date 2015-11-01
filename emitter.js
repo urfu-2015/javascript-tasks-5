@@ -7,7 +7,7 @@ module.exports = function () {
             if (this.students.indexOf(student) === -1) {
                 this.students.push(student);
             }
-            if (!student.hasOwnProperty('events')){
+            if (!student.hasOwnProperty('events')) {
                 student.events = {};
             }
             student.events[eventName] = callback;

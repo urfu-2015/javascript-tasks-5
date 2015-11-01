@@ -13,12 +13,19 @@ module.exports = function () {
             student.events[eventName] = callback;
         },
         off: function (eventName, student) {
+            console.log(eventName, student);
             var studentIndex = this.students.indexOf(student);
             if (studentIndex !== -1) {
-                if(this.students[studentIndex].events.hasOwnProperty(eventName)) {
-                    delete this.students[studentIndex].events[eventName];
+                var studentEvents = this.students[studentIndex].events;
+                for (var event in studentEvents) {
+                    if (studentEvents.hasOwnProperty(event)){
+                        if (event.indexOf(eventName) !== -1) {
+                            delete this.students[studentIndex].events[event];
+                        }
+                    }
                 }
             }
+            console.log(eventName, student);
         },
         emit: function (eventName) {
             var events = eventName.split('.');

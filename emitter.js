@@ -32,7 +32,7 @@ module.exports = function () {
         },
 
         emit: function (eventName) {
-            //console.log(eventName, 'event');
+            console.log(eventName, 'event');
             var eventLayers = eventName.split('.');
             for (var index in this.students){
                 var currentLayer = this.students[index];
@@ -43,16 +43,20 @@ module.exports = function () {
                     {
                         break;
                     }
-                    stackOfFunctions.push(currentLayer[eventLayers[i]]);
+                    var action = currentLayer[eventLayers[i]].action;
+                    var bindedAction = action.bind(this.students[index]);
+                    bindedAction();
+                    //stackOfFunctions.push(currentLayer[eventLayers[i]]);
+
                     currentLayer = currentLayer[eventLayers[i]];
                 }
                 //console.log(stackOfFunctions);
-                for (var i in stackOfFunctions)
+                /*for (var i in stackOfFunctions)
                 {
                     var action = stackOfFunctions.pop().action;
                     var bindedAction = action.bind(this.students[index]);
                     bindedAction();
-                }
+                }*/
             }
 
         },

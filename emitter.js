@@ -67,15 +67,15 @@ module.exports = function () {
 
         several: function (eventName, student, callback, n) {
             this.on(eventName, student, callback);
-            this.addParametrs(severalParametrs, eventName, student);
+            this.addParametrs(severalParametrs, eventName, student, n);
         },
 
         through: function (eventName, student, callback, n) {
             this.on(eventName, student, callback);
-            this.addParametrs(throughParametrs, eventName, student);
+            this.addParametrs(throughParametrs, eventName, student, n);
         },
 
-        addParametrs: function (parametrsArray, eventName, student) {
+        addParametrs: function (parametrsArray, eventName, student, n) {
             var newEvent = eventName.split('.').pop();
             if (!parametrsArray[newEvent]) {
                 parametrsArray[newEvent] = {};

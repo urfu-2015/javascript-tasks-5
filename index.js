@@ -86,6 +86,8 @@ lecturer.emit('slide.funny');
 
 lecturer.emit('slide.text');
 lecturer.emit('slide.funny');
+lecturer.emit('slide.funny');
+lecturer.emit('slide.funny');
 
 lecturer.off('slide', roma);
 

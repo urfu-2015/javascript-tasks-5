@@ -1,19 +1,20 @@
 module.exports = function () {
     return {
         students: [],
+        events: [],
 
         on: function (eventName, student, callback) {
-            this.createEvent(eventName, student, callback, 0, Infinity);
+            this.createEvent(eventName, student, callback, 1, Infinity);
         },
 
         off: function (eventName, student) {
-            this.createEvent(eventName, student, () => null, 0, 0);
+            this.createEvent(eventName, student, () => null, 1, 0);
         },
 
         emit: function (eventName) {
             eventName = eventName.split('.');
             for (var i = 0; i < this.students.length; i++) {
-                var events = this.students[i].events;
+                var events = this.events[i]['_all'];
                 for (var j = 0; j < eventName.length; j++) {
                     if (!(eventName[j] in events)) {
                         break;
@@ -30,7 +31,7 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            this.createEvent(eventName, student, callback, 0, n);
+            this.createEvent(eventName, student, callback, 1, n);
         },
 
         through: function (eventName, student, callback, n) {
@@ -38,13 +39,17 @@ module.exports = function () {
         },
 
         createEvent: function (eventName, student, callback, everyIndex, maxIndex) {
-            if (!('events' in student)) {
-                student['events'] = {};
+            if (everyIndex < 1) {
+                maxIndex = 0;
             }
-            everyIndex += 1;
+            if (!Boolean(this.students.indexOf(student) + 1)) {
+                this.students.push(student);
+                this.events.push({ _all: {} });
+            }
+            var index = this.students.indexOf(student);
             var currentIndex = 0;
-            var prevEvents = {};
-            var events = student.events;
+            var prevEvents = this.events[index];
+            var events = this.events[index]['_all'];
             eventName = eventName.split('.');
             for (var i = 0; i < eventName.length; i++) {
                 if (events[eventName[i]] === undefined) {

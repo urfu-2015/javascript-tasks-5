@@ -18,20 +18,31 @@ module.exports = function () {
             if (this.events[eventName] === undefined) {
                 return;
             }
-            var curEvent = this.events[eventName];
-            var index = -1;
-            for (var i = 0; i < curEvent.length; i++) {
-                if (curEvent[i].owner === student) {
-                    index = i;
-                    break;
+            var keys = Object.keys(this.events);
+            var offEvents = [];
+            offEvents.push(eventName);
+            keys.forEach(function (name) {
+                var check = eventName + '.';
+                if (name.indexOf(check) > -1) {
+                    offEvents.push(name);
                 }
-            }
-            if (index > -1) {
-                curEvent.splice(index, 1);
-            }
+            });
+            offEvents.forEach(function (name) {
+                var curEvent = this.events[name];
+                var index = -1;
+                for (var i = 0; i < curEvent.length; i++) {
+                    if (curEvent[i].owner === student) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index > -1) {
+                    curEvent.splice(index, 1);
+                }
+                return;
+            }, this);
             return;
-        }
-        ,
+        },
 
         emit: function (eventName) {
             var rawEvents = eventName.split('.');

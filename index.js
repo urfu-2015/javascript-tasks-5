@@ -93,3 +93,27 @@ lecturer.emit('slide.text');
 lecturer.emit('slide.text');
 
 lecturer.emit('end');
+
+lecturer.several('slide', daria, function () {
+    console.log('Новый слайд!');
+}, 2); // обработчик должен выполнится только дважды
+
+lecturer.emit('slide'); // 'Новый слайд!'
+lecturer.emit('slide'); // 'Новый слайд!'
+lecturer.emit('slide'); // обработчик не выполнился
+lecturer.emit('slide'); // обработчик не выполнился
+lecturer.emit('slide'); // обработчик не выполнился
+lecturer.emit('slide'); // обработчик не выполнился
+
+lecturer.through('slide', daria, function () {
+    console.log('Новый слайд!');
+}, 2); // обработчик должен выполниться на второй, четвёртый, шестой (и так далее) раз
+
+lecturer.emit('slide'); // обработчик не выполнился
+lecturer.emit('slide'); // 'Новый слайд!'
+lecturer.emit('slide'); // обработчик не выполнился
+lecturer.emit('slide'); // 'Новый слайд!'
+lecturer.emit('slide'); // обработчик не выполнился
+lecturer.emit('slide'); // 'Новый слайд!'
+lecturer.emit('slide'); // обработчик не выполнился
+lecturer.emit('slide'); // 'Новый слайд!'

@@ -68,23 +68,26 @@ lecturer.several('slide.funny', roma, function () {
 }, 5);
 
 // начинаем лекцию
-
 lecturer.emit('begin');
 
 lecturer.emit('slide.text');
 lecturer.emit('slide.text');
 lecturer.emit('slide.text');
+
 lecturer.emit('slide.funny');
 
 lecturer.emit('slide.text');
+
 lecturer.emit('slide.funny');
 
 lecturer.off('slide.funny', iakov);
 
 lecturer.emit('slide.text');
+
 lecturer.emit('slide.funny');
 
 lecturer.emit('slide.text');
+
 lecturer.emit('slide.funny');
 
 lecturer.off('slide', roma);

@@ -8,7 +8,7 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
-            this.createEvent(eventName, student, () => null, 1, 0);
+            this.createEvent(eventName, student, () => null, 1, 1);
         },
 
         emit: function (eventName) {
@@ -31,7 +31,7 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            this.createEvent(eventName, student, callback, 1, n);
+            this.createEvent(eventName, student, callback, 1, n + 1);
         },
 
         through: function (eventName, student, callback, n) {
@@ -47,7 +47,7 @@ module.exports = function () {
                 this.events.push({ _all: {} });
             }
             var index = this.students.indexOf(student);
-            var currentIndex = 0;
+            var currentIndex = 1;
             var prevEvents = this.events[index];
             var events = this.events[index]['_all'];
             eventName = eventName.split('.');

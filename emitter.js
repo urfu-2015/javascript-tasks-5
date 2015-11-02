@@ -12,8 +12,11 @@ module.exports = function () {
 
         off: function (eventName, student) {
             if (this.students.indexOf(student) > -1) {
+                delete student.events[eventName];
+                var steps = eventName.split(".");
                 for (var event in student.events) {
-                    if (student.events.hasOwnProperty(event) && event.indexOf(eventName.split(".")[0]) > -1) {
+                    if (student.events.hasOwnProperty(event) && steps.length == 1 
+                        && event.indexOf(steps[0]) > -1) {
                         delete student.events[event];
                     }
                 }

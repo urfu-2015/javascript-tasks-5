@@ -49,23 +49,6 @@ lecturer.on('slide', pyotr, function () {
     this.wisdom += this.focus * 0.1;
 });
 
-lecturer.through('slide.text', pyotr, function () {
-    this.focus -= 3;
-}, 2);
-
-var roma = {
-    focus: 5,
-    wisdom: 1
-};
-
-lecturer.on('slide', roma, function () {
-    this.wisdom += 1 + this.focus * 0.5;
-    this.focus -= 2;
-});
-
-lecturer.several('slide.funny', roma, function () {
-    this.focus += 1;
-}, 5);
 
 // начинаем лекцию
 
@@ -87,7 +70,6 @@ lecturer.emit('slide.funny');
 lecturer.emit('slide.text');
 lecturer.emit('slide.funny');
 
-lecturer.off('slide', roma);
 
 lecturer.emit('slide.text');
 lecturer.emit('slide.text');

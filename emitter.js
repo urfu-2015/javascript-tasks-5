@@ -20,14 +20,15 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
-            while (eventName != '') {
-                for (var i = 0; i < events[eventName].length; i++) {
-                    if (student == events[eventName][i].student) {
-                        events[eventName].splice(i, 1);
-                        break;
+            for (var event in events) {
+                if (event.startsWith(eventName)) {
+                    for (var i = 0; i < events[event].length; i++) {
+                        if (student == events[event][i].student) {
+                            events[event].splice(i, 1);
+                            break;
+                        }
                     }
                 }
-                eventName = eventName.replace(/.(\w+)$/, '');
             }
         },
 

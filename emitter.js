@@ -33,9 +33,11 @@ module.exports = function () {
             var index = this.getIndex(student);
             if (index !== -1) {
                 var currentStudent = subscribedStudents[index];
-                delete currentStudent.events[eventName];
-                if (currentStudent.events[eventName]) {
-                    delete currentStudent.events[eventName];
+                var keys = Object.keys(currentStudent.events);
+                for (var i = 0; i < keys.length; i++) {
+                    if (keys[i].indexOf(eventName) !== -1) {
+                        delete currentStudent.events[keys[i]];
+                    }
                 }
             }
         },
@@ -47,7 +49,7 @@ module.exports = function () {
                 var keys = Object.keys(student.events);
                 for (var j = 0; j < keys.length; j++) {
                     if (keys[j] === eventName || keys[j] === namespace) {
-                        student.events[keys[j]]();
+                        student.events[keys[j]].call(student['data']);
                     }
                 }
             }
@@ -63,11 +65,9 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-
         },
 
         through: function (eventName, student, callback, n) {
-
         }
     };
 };

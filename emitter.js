@@ -11,7 +11,7 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
-            if (student in this.students) {
+            if (this.students.indexOf(student) > -1) {
                 for (var event in student.events) {
                     if (student.events.hasOwnProperty(event) && event.indexOf(eventName.split(".")[0]) > -1) {
                         delete student.events[event];

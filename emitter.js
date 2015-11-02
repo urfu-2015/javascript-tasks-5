@@ -36,12 +36,8 @@ module.exports = function () {
             });
         },
         // Сделаю позже
-        several: function (eventName, student, callback, n) {
-            
-        },
+        several: function (eventName, student, callback, n) {},
 
-        through: function (eventName, student, callback, n) {
-
-        }
+        through: function (eventName, student, callback, n) {}
     };
 };

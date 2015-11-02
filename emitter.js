@@ -33,10 +33,10 @@ module.exports = function () {
             // Добавим данные для события
             // Пример begin -> begin -> [{данные}, ...]
             eventsInfo[eventNames[0]][eventNames[1]].push({
-                'id': studentIndex,
-                'callback': callback,
-                'every': 0,
-                'count': 1});
+                id: studentIndex,
+                callback: callback,
+                every: 0,
+                count: 1});
         },
 
         off: function (eventName, student) {

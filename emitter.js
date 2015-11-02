@@ -12,7 +12,11 @@ module.exports = function () {
 
         off: function (eventName, student) {
             if (student in this.students) {
-                delete student[eventName];
+                for (var event in student.events) {
+                    if (student.events.hasOwnProperty(event) && event.indexOf(eventName.split(".")[0]) > -1) {
+                        delete student.events[event];
+                    }
+                }
             }
         },
 

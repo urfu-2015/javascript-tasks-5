@@ -1,19 +1,32 @@
+function initializeHandler(student, func, callsLimit) {
+    var newEventHandler = {
+        student: student,
+        function: func.bind(student)
+    };
+    if (typeof callsLimit !== 'undefined') {
+        newEventHandler['numOfCalls'] = 0;
+        newEventHandler['callsLimit'] = callsLimit;
+    }
+    return newEventHandler;
+}
+
+function addHandler(listOfEvents, eventName, handler) {
+    if (Object.keys(listOfEvents).indexOf(eventName) + 1) {
+        listOfEvents[eventName].push(handler);
+    } else {
+        listOfEvents[eventName] = [handler];
+    }
+}
+
 module.exports = function () {
     return {
         listOfEvents: {},
         on: function (eventName, student, callback) {
-            var newEventHandler = {
-                student: student,
-                function: callback.bind(student)
-            };
-            if (Object.keys(this.listOfEvents).indexOf(eventName) + 1) {
-                this.listOfEvents[eventName].push(newEventHandler);
-            } else {
-                this.listOfEvents[eventName] = [newEventHandler];
-            }
+            var newEventHandler = initializeHandler(student, callback);
+            addHandler(this.listOfEvents, eventName, newEventHandler);
         },
 
-        off: function (eventName, student) { // пространство имён
+        off: function (eventName, student) {
             if (Object.keys(this.listOfEvents).indexOf(eventName) + 1) {
                 var isThereSuchStudent = false;
                 for (var i in this.listOfEvents) {
@@ -40,21 +53,30 @@ module.exports = function () {
                 if (eventName.indexOf(i) + 1) {
                     var currentEvent = this.listOfEvents[i];
                     for (var j in currentEvent) {
+                        if (currentEvent[j].hasOwnProperty('callsLimit')) {
+                            if (currentEvent[j]['numOfCalls'] < currentEvent[j]['callsLimit']) {
+                                currentEvent[j]['numOfCalls']++;
+                            } else {
+                                continue;
+                            }
+                        }
                         currentEvent[j]['function']();
                     }
                 }
             }
-            //console.log('-------------');
         },
 
-        several: function (eventName, student, callback, n) { // в массиве для студента/функции хранится n
-            // когда вызываем emit, проверяем, есть ли параметр такой, и если да то — не ноль ли, если нет,
-            // выполняем, уменьшаем n
+        several: function (eventName, student, callback, n) {
+            if (n < 0 || typeof n !== 'number') {
+                console.error('Неверное количество повторов!');
+                return;
+            }
+            var newEventHandler = initializeHandler(student, callback, n);
+            addHandler(this.listOfEvents, eventName, newEventHandler);
 
         },
 
-        through: function (eventName, student, callback, n) { // здесь должен быть ещё и счётчик вызовов
-        // изначально 0, сначала увеличиваем номер, затем делим по модулю, при каждом вызове
+        through: function (eventName, student, callback, n) {
 
         }
     };

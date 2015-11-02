@@ -23,7 +23,17 @@ Emitter.prototype.emit = function emit(eventName) {
     for (var i = 0; i < events.length; ++i) {
         emitEvent += events[i];
         this.events[emitEvent].forEach(function (item) {
-            item.callback.call(item.student);
+            if (item.type === 'each') {
+                if (item.counter < item.n) {
+                    item.callback.call(item.student);
+                    ++item.counter;
+                }
+            } else if (item.type === 'step') {
+                if (item.counter % item.n === 0) {
+                    item.callback.call(item.student);
+                }
+                ++item.counter;
+            }
         });
         emitEvent += '.';
     }

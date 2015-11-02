@@ -42,13 +42,5 @@ module.exports = function () {
                 }
             }
         }
-
-        several: function (eventName, student, callback, n) {
-
-        },
-
-        through: function (eventName, student, callback, n) {
-
-        }
     };
 };

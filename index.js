@@ -68,7 +68,7 @@ lecturer.several('slide.funny', roma, function () {
 }, 5);
 
 // начинаем лекцию
-
+debugger;
 lecturer.emit('begin');
 
 lecturer.emit('slide.text');

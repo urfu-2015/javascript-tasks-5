@@ -23,7 +23,7 @@ module.exports = function () {
         },
 
         emit: function (eventName) {
-            var listEvents = eventName.split(".");
+            var listEvents = eventName.split('.');
             var f = (student) => {
                 if (this.students.indexOf(student) > -1 &&
                     student.events.hasOwnProperty(listEvents[0])) {

@@ -6,7 +6,12 @@ module.exports = function () {
             if (students.indexOf(student) === -1) {
                 students.push(student);
                 var studentEvents = {}; //словарь событий
-                studentEvents[eventName] = callback;
+                studentEvents[eventName] = {
+                    func: callback,
+                    period: 1,
+                    counter: 1, // счетчик, на каком шаге вызываем функцию
+                    max: Number.MAX_SAFE_INTEGER // максимальное число вызова функции
+                };
                 var newStudent = {
                     data: student,
                     events: studentEvents
@@ -14,7 +19,17 @@ module.exports = function () {
                 subscribedStudents.push(newStudent);
             } else {
                 var index = this.getIndex(student);
-                subscribedStudents[index].events[eventName] = callback;
+                var keys = Object.keys(subscribedStudents[index]['events']);
+                if (keys.indexOf(eventName) !== -1) {
+                    subscribedStudents[index]['events'][eventName]['func'] = callback;
+                } else {
+                    subscribedStudents[index]['events'][eventName] = {
+                        func: callback,
+                        period: 1,
+                        counter: 1,
+                        max: Number.MAX_SAFE_INTEGER
+                    };
+                }
             }
         },
 
@@ -48,8 +63,13 @@ module.exports = function () {
                 var student = subscribedStudents[i];
                 var keys = Object.keys(student.events);
                 for (var j = 0; j < keys.length; j++) {
+                    var currentEvent = student.events[keys[j]];
                     if (keys[j] === eventName || keys[j] === namespace) {
-                        student.events[keys[j]].call(student['data']);
+                        if (currentEvent.max > currentEvent.counter &&
+                            currentEvent.counter % currentEvent.period === 0) {
+                            currentEvent.func.call(student['data']);
+                        }
+                        currentEvent.counter += 1;
                     }
                 }
             }
@@ -65,9 +85,18 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
+            this.setAdditionalValue(eventName, student, callback, 'max', n);
         },
 
         through: function (eventName, student, callback, n) {
+            this.setAdditionalValue(eventName, student, callback, 'period', n);
+        },
+
+        setAdditionalValue: function (eventName, student, callback, nameValue, n) {
+            this.on(eventName, student, callback);
+            var index = this.getIndex(student);
+            var currentStudent = subscribedStudents[index];
+            currentStudent.events[eventName][nameValue] = n;
         }
     };
 };

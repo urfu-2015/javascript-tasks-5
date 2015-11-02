@@ -1,11 +1,17 @@
-function initializeHandler(student, func, callsLimit) {
+function initializeHandler(student, func, n, type) {
     var newEventHandler = {
         student: student,
         function: func.bind(student)
     };
-    if (typeof callsLimit !== 'undefined') {
-        newEventHandler['numOfCalls'] = 0;
-        newEventHandler['callsLimit'] = callsLimit;
+    if (typeof n !== 'undefined') {
+        if (type === 'several') {
+            newEventHandler['numOfCalls'] = 1;
+            newEventHandler['callsLimit'] = n;
+        }
+        if (type === 'through') {
+            newEventHandler['numOfCalls'] = 0;
+            newEventHandler['callsAlternation'] = n;
+        }
     }
     return newEventHandler;
 }
@@ -54,9 +60,16 @@ module.exports = function () {
                     var currentEvent = this.listOfEvents[i];
                     for (var j in currentEvent) {
                         if (currentEvent[j].hasOwnProperty('callsLimit')) {
-                            if (currentEvent[j]['numOfCalls'] < currentEvent[j]['callsLimit']) {
+                            if (currentEvent[j]['numOfCalls'] <= currentEvent[j]['callsLimit']) {
                                 currentEvent[j]['numOfCalls']++;
                             } else {
+                                continue;
+                            }
+                        } else if (currentEvent[j].hasOwnProperty('callsAlternation')) {
+                            currentEvent[j]['numOfCalls']++;
+                            if ((currentEvent[j]['numOfCalls'] %
+                                currentEvent[j]['callsAlternation']) ||
+                                currentEvent[j]['callsAlternation'] === 0) {
                                 continue;
                             }
                         }
@@ -71,13 +84,18 @@ module.exports = function () {
                 console.error('Неверное количество повторов!');
                 return;
             }
-            var newEventHandler = initializeHandler(student, callback, n);
+            var newEventHandler = initializeHandler(student, callback, n, 'several');
             addHandler(this.listOfEvents, eventName, newEventHandler);
 
         },
 
         through: function (eventName, student, callback, n) {
-
+            if (n < 0 || typeof n !== 'number') {
+                console.error('Неверное количество вызовов!');
+                return;
+            }
+            var newEventHandler = initializeHandler(student, callback, n, 'through');
+            addHandler(this.listOfEvents, eventName, newEventHandler);
         }
     };
 };

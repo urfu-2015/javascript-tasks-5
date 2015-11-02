@@ -2,7 +2,7 @@ module.exports = function () {
     var events = {};
     var period = 1;
 
-    function add (eventName, student, callback, n, type) {
+    function add(eventName, student, callback, n, type) {
         if (!(eventName in events)) {
             events[eventName] = [];
         }

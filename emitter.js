@@ -4,12 +4,11 @@ function initializeHandler(student, func, n, type) {
         function: func.bind(student)
     };
     if (typeof n !== 'undefined') {
+        newEventHandler['numOfCalls'] = 0;
         if (type === 'several') {
-            newEventHandler['numOfCalls'] = 1;
             newEventHandler['callsLimit'] = n;
         }
         if (type === 'through') {
-            newEventHandler['numOfCalls'] = 0;
             newEventHandler['callsAlternation'] = n;
         }
     }
@@ -60,7 +59,7 @@ module.exports = function () {
                     var currentEvent = this.listOfEvents[i];
                     for (var j in currentEvent) {
                         if (currentEvent[j].hasOwnProperty('callsLimit')) {
-                            if (currentEvent[j]['numOfCalls'] <= currentEvent[j]['callsLimit']) {
+                            if (currentEvent[j]['numOfCalls'] < currentEvent[j]['callsLimit']) {
                                 currentEvent[j]['numOfCalls']++;
                             } else {
                                 continue;
@@ -91,7 +90,7 @@ module.exports = function () {
 
         through: function (eventName, student, callback, n) {
             if (n < 0 || typeof n !== 'number') {
-                console.error('Неверное количество вызовов!');
+                console.error('Неверное количество чередований!');
                 return;
             }
             var newEventHandler = initializeHandler(student, callback, n, 'through');

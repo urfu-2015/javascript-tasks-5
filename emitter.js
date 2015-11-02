@@ -2,7 +2,7 @@ module.exports = function () {
     var students = [];
     return {
         on: function (eventName, student, callback) {
-            var studentIndex = findElementFromArray(students, student, 'student');
+            var studentIndex = findStudent(students, student, 'student');
             if (studentIndex !== null) {
                 students[studentIndex].property.push({eventName: eventName, callback: callback});
             } else {
@@ -14,12 +14,14 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
-            var studentIndex = findElementFromArray(students, student, 'student');
+            var studentIndex = findStudent(students, student, 'student');
             if (studentIndex !== null) {
                 var property = students[studentIndex].property;
-                var propertyIndex = findElementFromArray(property, eventName, 'eventName');
-                if (propertyIndex !== null) {
-                    students[studentIndex].property.splice(propertyIndex, 1);
+                var propertyIndex = findEventName(property, eventName, 'eventName');
+                if (propertyIndex.length > 0) {
+                    for (var k = 0; k < propertyIndex.length; k++) {
+                        students[studentIndex].property.splice(propertyIndex[k], 1);
+                    }
                 }
             }
         },
@@ -50,7 +52,7 @@ module.exports = function () {
     };
 };
 
-function findElementFromArray(array, element, field) {
+function findStudent(array, element, field) {
     var value = null;
     array.forEach(function (item, i) {
         if (item[field] === element) {
@@ -58,4 +60,14 @@ function findElementFromArray(array, element, field) {
         }
     });
     return value;
+}
+
+function findEventName(array, eventName, field) {
+    var value = [];
+    array.forEach(function (item, i) {
+        if (item[field].lastIndexOf(eventName, 0) > -1) {
+            value.push(i);
+        }
+    });
+    return value.reverse();
 }

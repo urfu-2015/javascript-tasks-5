@@ -5,6 +5,9 @@ module.exports = function () {
     var eventsInfo = {};
     // Состояния вызовов событий
     var eventsStatus = {};
+    var subscribe = function (eventName, student, callback) {
+        // TODO вынести сюда общий код из on, several, through
+    }
     return {
         on: function (eventName, student, callback) {
             var studentIndex;
@@ -116,7 +119,7 @@ module.exports = function () {
                     if (student['several'] < 0 && student['every'] < 0) {
                         student['callback'].apply(subscribedStudents[student['id']]);
                     }
-                });
+                }, this);
             } else {
                 // Вызываем само событие
                 eventsInfo[eventNames[0]][eventNames[1]].forEach(function (student, index, array) {
@@ -132,7 +135,6 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            // TODO вынести общую часть добавлений студентов
             // Если студента нет - добавим
             if (subscribedStudents.indexOf(student) < 0) {
                 subscribedStudents.push(student);

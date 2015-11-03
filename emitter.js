@@ -37,7 +37,7 @@ module.exports = function () {
             for (var i = 0; i < eventNameArray.length; i++) {
                 var e = eventNameArray[i];
                 if (!events[e]) {
-                    return;
+                    continue;
                 }
                 events[e].numdersOfCall += 1;
                 for (studentIndex in events[e]) {
@@ -66,11 +66,17 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
+            if (n === 0) {
+                return;
+            }
             this.on(eventName, student, callback);
             this.addParametrs(severalParametrs, eventName, student, n);
         },
 
         through: function (eventName, student, callback, n) {
+            if (n === 0) {
+                return;
+            }
             this.on(eventName, student, callback);
             this.addParametrs(throughParametrs, eventName, student, n);
         },

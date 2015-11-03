@@ -2,7 +2,7 @@ module.exports = function () {
     var allEvents = [];
     return {
         on: function (eventName, student, callback) {
-            var eventIndex = getIndexEventName(allEvents, 'eventName', eventName);
+            var eventIndex = getIndexEventName(allEvents, eventName);
 
             return eventIndex > 0 ?
                 allEvents[eventIndex].participants.push(student)
@@ -16,7 +16,7 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
-            var indexEvent = getIndexEventName(allEvents, 'eventName', eventName);
+            var indexEvent = getIndexEventName(allEvents, eventName);
             return allEvents[indexEvent].participants.filter(function (name) {
                 return name !== student;
             });
@@ -28,7 +28,7 @@ module.exports = function () {
             var indexEvent;
             while (indexOneEvent > 0) {
                 oneEvent  = oneEvent.slice(0, indexOneEvent); 
-                indexEvent = getIndexEventName(allEvents,'eventName', oneEvent);
+                indexEvent = getIndexEventName(allEvents, oneEvent);
                 if (indexEvent > -1) {
                     return allEvents[indexEvent].senceEvent;
                 }
@@ -45,9 +45,9 @@ module.exports = function () {
     }
 };
 
-function getIndexEventName (array, property, key) {
+function getIndexEventName (array, key) {
     for (var i = 0; i < array.length; i++) {
-        if (array[i].property === key) {
+        if (array[i].eventName === key) {
             return i;
         }
     }

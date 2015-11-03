@@ -15,13 +15,14 @@ module.exports = function () {
     }
 
     var launch = {
-        "on/several": function (event) {
+        on_several: function (event) {
             if (event.n != 0) {
                 event.callback.call(event.student);
                 event.n--;
             }
         },
-        "through": function (event) {
+        
+        through: function (event) {
             if (period % event.n == 0) {
                 event.callback.call(event.student);
             }
@@ -31,7 +32,7 @@ module.exports = function () {
 
     return {
         on: function (eventName, student, callback) {
-            add(eventName, student, callback, -1, 'on/several');
+            add(eventName, student, callback, -1, 'on_several');
         },
 
         off: function (eventName, student) {
@@ -60,7 +61,7 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            add(eventName, student, callback, n, 'on/several');
+            add(eventName, student, callback, n, 'on_several');
         },
 
         through: function (eventName, student, callback, n) {

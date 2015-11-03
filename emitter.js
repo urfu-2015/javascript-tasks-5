@@ -19,7 +19,7 @@ module.exports = function () {
                     }
                 );
             } else {
-                subscriptions[index]['events'][eventName] = events[eventName];
+                subscriptions[index].events[eventName] = events[eventName];
             }
         },
 
@@ -67,7 +67,7 @@ module.exports = function () {
 
 function getIndex(subscriptions, student) {
     for (var i = 0; i < subscriptions.length; i++) {
-        if (subscriptions[i]['student'] == student) {
+        if (subscriptions[i].student == student) {
             return i;
         }
     }

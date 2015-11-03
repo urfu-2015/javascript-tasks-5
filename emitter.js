@@ -10,7 +10,7 @@ module.exports = function () {
 
         off: function (eventName, student) {
 			for (var event in events) {
-				if (event === eventName || event.indexOf(eventName + '.')) {
+				if (event === eventName || event.indexOf(eventName + '.') === 0) {
 					for (var i = 0; i < events[event].length; i++) {
 						if (events[event][i].student === student) {
 							events[event].splice(i, 1);

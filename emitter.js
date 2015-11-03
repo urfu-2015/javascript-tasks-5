@@ -2,29 +2,35 @@ module.exports = function () {
     return {
         events: {},
 
-        on: function (eventName, student, callback) {
+        on: function (eventName, student, callback, callCount, callPeriodicity) {
             if (!(eventName in this.events)) {
                 this.events[eventName] = [];
+            }
+            if ((callCount === undefined) || (callCount === null)) {
+                callCount = Number.POSITIVE_INFINITY;
+            }
+            if ((callPeriodicity === undefined) || (callPeriodicity === null)) {
+                callPeriodicity = 1;
             }
             this.events[eventName].push({student: student,
                                          callback: callback,
                                          callNunber: 0,
-                                         callCount: Number.POSITIVE_INFINITY,
-                                         callPeriodicity: 1
+                                         callCount: callCount,
+                                         callPeriodicity: callPeriodicity
                                          });
         },
 
         off: function (eventName, student) {
-            var keys = Object.keys(this.events);
-            for (var j = 0; j < keys.length; j++) {
-                if (keys[j].indexOf(eventName) >= 0) {
-                    for (var i = 0; i < this.events[keys[j]].length; i++) {
-                        if (this.events[keys[j]][i].student === student) {
-                            this.events[keys[j]].splice(i, 1);
+            Object.keys(this.events).forEach(function (key) {
+                if (key.indexOf(eventName) >= 0) {
+                    for (var i = 0; i < this.events[key].length; i++) {
+                        if (this.events[key][i].student === student) {
+                            this.events[key].splice(i, 1);
+                            break;
                         }
                     }
                 }
-            }
+            }, this);
         },
 
         emit: function (eventName) {
@@ -44,9 +50,8 @@ module.exports = function () {
             }
             if (eventName in this.events) {
                 var eventList = createEventList();
-                for (var i = 0; i < eventList.length; i++) {
-                    for (var j = 0; j < this.events[eventList[i]].length; j++) {
-                        var currentEvent = this.events[eventList[i]][j];
+                eventList.forEach(function (eventName) {
+                    this.events[eventName].forEach(function (currentEvent) {
                         var student = currentEvent.student;
                         currentEvent.callNunber += 1;
                         if (currentEvent.callCount < 1) {
@@ -58,29 +63,17 @@ module.exports = function () {
                             var callback = currentEvent.callback;
                             callback.apply(student);
                         }
-                    }
-                }
+                    });
+                }, this);
             }
         },
 
         several: function (eventName, student, callback, n) {
-            this.on(eventName, student, callback);
-            for (var i = 0; i < this.events[eventName].length; i++) {
-                if (this.events[eventName][i].student === student) {
-                    this.events[eventName][i].callCount = n;
-                    return;
-                }
-            }
+            this.on(eventName, student, callback, n);
         },
 
         through: function (eventName, student, callback, n) {
-            this.on(eventName, student, callback);
-            for (var i = 0; i < this.events[eventName].length; i++) {
-                if (this.events[eventName][i].student === student) {
-                    this.events[eventName][i].callPeriodicity = n;
-                    return;
-                }
-            }
+            this.on(eventName, student, callback, null, n);
         }
     };
 };

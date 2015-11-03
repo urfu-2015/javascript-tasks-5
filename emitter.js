@@ -60,11 +60,13 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            add(eventName, student, callback, n, 'on_several');
+            add(eventName, student, callback, n < 0 ? 0 : n, 'on_several');
         },
 
         through: function (eventName, student, callback, n) {
-            add(eventName, student, callback, n, 'through');
+            if (n >= 0) {
+                add(eventName, student, callback, n, 'through');
+            }
         }
     };
 };

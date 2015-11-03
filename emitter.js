@@ -22,25 +22,51 @@ module.exports = function () {
         },
 
         emit: function (eventName) {
-            if (this.events[eventName]) {
-                for (var i = 0; i < this.events[eventName].length; i++) {
-                    this.events[eventName][i].reaction.call(this.events[eventName][i].student);
-                }
-            }
+            eventName = eventName + '.';
             while (eventName.lastIndexOf('.') !== -1) {
-                eventName = eventName.substr(0, eventName.lastIndexOf('.'));
-                for (var i = 0; i < this.events[eventName].length; i++) {
-                    this.events[eventName][i].reaction.call(this.events[eventName][i].student);
+                eventName = eventName.substring(0, eventName.lastIndexOf('.'));
+                if (this.events[eventName]) {
+                    for (var i = 0; i < this.events[eventName].length; i++) {
+                        if (!this.events[eventName][i].count &&
+                            !this.events[eventName][i].period) {
+                            this.events[eventName][i].reaction
+                                .call(this.events[eventName][i].student);
+                        }
+                        if (this.events[eventName][i].count) {
+                            this.events[eventName][i].count--;
+                            if (this.events[eventName][i].count == 0) {
+                                this.off(eventName, this.events[eventName][i].student);
+                            }
+                            this.events[eventName][i].reaction
+                                .call(this.events[eventName][i].student);
+                        }
+                        if (this.events[eventName][i].period) {
+                            this.events[eventName][i].current++;
+                            if (this.events[eventName][i].current ==
+                                this.events[eventName][i].period) {
+                                this.events[eventName][i].current = 0;
+                                this.events[eventName][i].reaction
+                                    .call(this.events[eventName][i].student);
+                            }
+                        }
+                    }
                 }
             }
         },
 
         several: function (eventName, student, callback, n) {
-
+            if (!this.events[eventName]) {
+                this.events[eventName] = [];
+            }
+            this.events[eventName].push({student: student, reaction: callback, count: n});
         },
 
         through: function (eventName, student, callback, n) {
-
+            if (!this.events[eventName]) {
+                this.events[eventName] = [];
+            }
+            this.events[eventName].push({student: student, reaction: callback,
+                period: n, current: 0});
         }
     };
 };

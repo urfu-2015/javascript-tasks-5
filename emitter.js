@@ -21,7 +21,6 @@ module.exports = function () {
                 event.n--;
             }
         },
-        
         through: function (event) {
             if (period % event.n == 0) {
                 event.callback.call(event.student);

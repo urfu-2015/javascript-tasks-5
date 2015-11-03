@@ -14,20 +14,34 @@ module.exports = function () {
         });
     }
 
+    var launch = {
+        'on/several' : function(event) {
+            if (event.n != 0) {
+                event.callback.call(event.student);
+                event.n--;
+            }
+        },
+        'through' : function(event) {
+            if (period % event.n == 0) {
+                event.callback.call(event.student);
+            }
+            period++;
+        }
+    };
+
     return {
         on: function (eventName, student, callback) {
-            add(eventName, student, callback, -1, 'on');
+            add(eventName, student, callback, -1, 'on/several');
         },
 
         off: function (eventName, student) {
             for (var event in events) {
                 if (event.startsWith(eventName)) {
-                    for (var i = 0; i < events[event].length; i++) {
-                        if (student == events[event][i].student) {
-                            events[event].splice(i, 1);
-                            break;
-                        }
-                    }
+
+                    events[event] = events[event].filter(function(i) {
+                        return student != i.student;
+                    })
+
                 }
             }
         },
@@ -35,30 +49,18 @@ module.exports = function () {
         emit: function (eventName) {
             while (eventName != '') {
                 if (eventName in events) {
-                    for (var event of events[eventName]) {
-                        switch (event.type) {
-                            case 'on':
-                            case 'several':
-                                if (event.n != 0) {
-                                    event.callback.call(event.student);
-                                    event.n--;
-                                }
-                                break;
-                            case 'through':
-                                if (period % event.n == 0) {
-                                    event.callback.call(event.student);
-                                }
-                                period++;
-                                break;
-                        }
-                    }
+
+                    events[eventName].forEach(function(event) {
+                        launch[event.type](event);
+                    });
+
                 }
                 eventName = eventName.replace(/.(\w+)$/, '');
             }
         },
 
         several: function (eventName, student, callback, n) {
-            add(eventName, student, callback, n, 'several');
+            add(eventName, student, callback, n, 'on/several');
         },
 
         through: function (eventName, student, callback, n) {

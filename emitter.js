@@ -15,13 +15,13 @@ module.exports = function () {
     }
 
     var launch = {
-        'on/several' : function(event) {
+        "on/several": function (event) {
             if (event.n != 0) {
                 event.callback.call(event.student);
                 event.n--;
             }
         },
-        'through' : function(event) {
+        "through": function (event) {
             if (period % event.n == 0) {
                 event.callback.call(event.student);
             }
@@ -38,9 +38,9 @@ module.exports = function () {
             for (var event in events) {
                 if (event.startsWith(eventName)) {
 
-                    events[event] = events[event].filter(function(i) {
+                    events[event] = events[event].filter(function (i) {
                         return student != i.student;
-                    })
+                    });
 
                 }
             }
@@ -50,7 +50,7 @@ module.exports = function () {
             while (eventName != '') {
                 if (eventName in events) {
 
-                    events[eventName].forEach(function(event) {
+                    events[eventName].forEach(function (event) {
                         launch[event.type](event);
                     });
 

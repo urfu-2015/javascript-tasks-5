@@ -4,7 +4,7 @@ module.exports = function () {
         on: function (eventName, student, callback) {
             var eventIndex = getIndexEventName(allEvents, eventName);
 
-            return eventIndex > 0 ?
+            return eventIndex > -1 ?
                 allEvents[eventIndex].participants.push(student)
                 :
                 allEvents.push(
@@ -23,27 +23,16 @@ module.exports = function () {
         },
 
         emit: function (eventName) {
-            var indexOneEvent = eventName.length;
-            var oneEvent = eventName;
             var indexEvent;
-            while (indexOneEvent > 0) {
-                oneEvent  = oneEvent.slice(0, indexOneEvent); 
+            eventName.split('.').forEach(function (oneEvent) {
                 indexEvent = getIndexEventName(allEvents, oneEvent);
                 if (indexEvent > -1) {
                     return allEvents[indexEvent].senceEvent;
                 }
-                indexOneEvent = oneEvent.lastIndexOf('.') - 1;
-            }
+            });
         }
-        /*several: function (eventName, student, callback, n) {
-
-        },
-
-        through: function (eventName, student, callback, n) {
-
-        }*/
-    }
-};
+    };
+}
 
 function getIndexEventName (array, key) {
     for (var i = 0; i < array.length; i++) {

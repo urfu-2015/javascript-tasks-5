@@ -5,7 +5,6 @@ module.exports = function () {
     }
 
     var students = [];
-
     return {
         on: function (eventName, student, callback) {
             var newStudent = {
@@ -15,7 +14,6 @@ module.exports = function () {
             };
             students.push(newStudent);
         },
-
         off: function (eventName, student) {
             for (var i = 0; i < students.length; i++) {
                 if (students[i] !== undefined &&
@@ -24,26 +22,25 @@ module.exports = function () {
                     delete students[i];
                 }
             }
-
         },
-
         emit: function (eventName) {
-            var events = getEvents(eventName);
-            if (events.length === 1) {
-                for (var j = 0; j < students.length; j++) {
-                    if (students[j] !== undefined &&
-                        students[j].event === eventName) {
-                        students[j].callBack.call(students[j].dataOfStudent);
+            var eventFstLvl = getEvents(eventName)[0];
+            var eventSndLvl = getEvents(eventName)[1];
+            if (eventSndLvl === undefined) {
+                students.forEach(function (student) {
+                    if (student !== undefined &&
+                        student.event === eventFstLvl) {
+                        student.callBack.call(student.dataOfStudent);
                     }
-                }
+                });
             } else {
-                for (var j = 0; j < students.length; j++) {
-                    if (students[j] !== undefined &&
-                            (students[j].event === eventName ||
-                            students[j].event.indexOf(events[0]) !== -1)) {
-                        students[j].callBack.call(students[j].dataOfStudent);
+                students.forEach(function (student) {
+                    if (student !== undefined &&
+                            (student.event === eventName ||
+                            student.event.indexOf(eventFstLvl) !== -1)) {
+                        student.callBack.call(student.dataOfStudent);
                     }
-                }
+                });
             }
         },
         several: function (eventName, student, callback, n) {

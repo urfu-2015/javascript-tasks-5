@@ -27,7 +27,7 @@ module.exports = function () {
             var names = [];
             names = [eventName];
             if (eventName.indexOf('.') != -1) {
-                names.push(eventName.slice(0, eventName.indexOf('.')))
+                names.push(eventName.slice(0, eventName.indexOf('.')));
             }
             var events = this.events;
             names.forEach(function (name) {
@@ -38,7 +38,6 @@ module.exports = function () {
                 }
             });
         },
-        
 
         several: function (eventName, student, callback, n) {
 

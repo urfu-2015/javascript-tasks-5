@@ -1,9 +1,6 @@
 module.exports = function () {
     var signedStudents = [];
-    var events = {};
-    var eventsHierarchy = [];
-    var severalParametrs = {};
-    var throughParametrs = {};
+    var events = {childEvents: {}};
     return {
         on: function (eventName, student, callback) {
             if (signedStudents.indexOf(student) === -1) {
@@ -11,116 +8,138 @@ module.exports = function () {
             }
             var studentIndex = signedStudents.indexOf(student);
             var eventNameArray = eventName.split('.');
-            this.recursiveAdd(eventsHierarchy, eventNameArray);
-            var lastEvent = eventNameArray.pop();
-            events[lastEvent][studentIndex] = callback;
+            if (IsEventExist(events, eventName)) {
+                var pathToEvent = events;
+                for (var i = 0; i < eventNameArray.length; i++) {
+                    var eventName = eventNameArray[i];
+                    pathToEvent = pathToEvent.childEvents[eventName];
+                }
+                pathToEvent.actions[studentIndex] = callback;
+                return pathToEvent;
+            };
+            return this.recursiveAdd(events, eventNameArray, callback, studentIndex);
         },
 
         off: function (eventName, student) {
             var eventNameArray = eventName.split('.');
-            pathToEvent = eventsHierarchy;
+            pathToEvent = events;
             for (var i = 0; i < eventNameArray.length; i++) {
-                var e = eventNameArray[i];
-                pathToEvent = pathToEvent[e];
+                var eventName = eventNameArray[i];
+                pathToEvent = pathToEvent.childEvents[eventName];
             }
-            this.recursiveOff(pathToEvent, student);
-            var rootEvent = eventNameArray[eventNameArray.length - 1];
-            for (signedStudent in events[rootEvent]) {
-                if (signedStudents[signedStudent] === student) {
-                    delete events[rootEvent][signedStudent];
-                }
-            }
+            var studentIndex = signedStudents.indexOf(student);
+            this.recursiveOff(pathToEvent, studentIndex);
         },
 
         emit: function (eventName) {
+            if (!IsEventExist(events, eventName)) {
+                return;
+            }
             var eventNameArray = eventName.split('.');
+            var currentEvent = events;
             for (var i = 0; i < eventNameArray.length; i++) {
-                var e = eventNameArray[i];
-                if (!events[e]) {
-                    continue;
-                }
-                events[e].numdersOfCall += 1;
-                for (studentIndex in events[e]) {
-                    if (studentIndex === 'numdersOfCall') {
-                        continue;
-                    }
+                var name = eventNameArray[i];
+                var e = currentEvent.childEvents[name];
+                e.numdersOfCall += 1;
+                for (studentIndex in e.actions) {
                     if (this.checkSeveralAndThrough(e, studentIndex)) {
-                        var action = events[e][studentIndex];
+                        var action = e.actions[studentIndex];
                         action.call(signedStudents[studentIndex]);
                     }
                 }
+                currentEvent = e;
             }
         },
 
-        checkSeveralAndThrough: function (eventName, studentIndex) {
-            var calls = events[eventName].numdersOfCall;
-            if (severalParametrs[eventName] &&
-                severalParametrs[eventName][studentIndex] < calls) {
+        checkSeveralAndThrough: function (e, studentIndex) {
+            var calls = e.numdersOfCall;
+            if (e.severalParametr &&
+                e.severalParametr[studentIndex] < calls) {
+                this.recursiveOff(e, studentIndex);
                 return false;
             }
-            if (throughParametrs[eventName] &&
-                calls % throughParametrs[eventName][studentIndex] !== 0) {
+            if (e.throughParametr &&
+                calls % e.throughParametr[studentIndex] !== 0) {
                 return false;
             }
             return true;
         },
 
         several: function (eventName, student, callback, n) {
-            if (n === 0) {
+            if (n < 1) {
                 return;
             }
-            this.on(eventName, student, callback);
-            this.addParametrs(severalParametrs, eventName, student, n);
+            var newEvent = this.on(eventName, student, callback);
+            this.addParametrs('severalParametr', newEvent, student, n);
         },
 
         through: function (eventName, student, callback, n) {
-            if (n === 0) {
+            if (n < 1) {
                 return;
             }
-            this.on(eventName, student, callback);
-            this.addParametrs(throughParametrs, eventName, student, n);
+            var newEvent = this.on(eventName, student, callback);
+            if (n === 1) {
+                return;
+            }
+            this.addParametrs('throughParametr', newEvent, student, n);
         },
 
-        addParametrs: function (parametrsArray, eventName, student, n) {
-            var newEvent = eventName.split('.').pop();
-            if (!parametrsArray[newEvent]) {
-                parametrsArray[newEvent] = {};
+        addParametrs: function (parametr, currentEvent, student, n) {
+            if (!currentEvent[parametr]) {
+                currentEvent[parametr] = {};
             }
             var studentIndex = signedStudents.indexOf(student);
-            parametrsArray[newEvent][studentIndex] = n;
+            currentEvent[parametr][studentIndex] = n;
         },
 
-        recursiveAdd: function (listInHierarchy, eventNameArray) {
+        recursiveAdd: function (parentEvent, eventNameArray, callback, studentIndex) {
             if (eventNameArray.length === 1) {
-                var newEvent = eventNameArray[0];
-                listInHierarchy.push(newEvent);
-                if (!events[newEvent]) {
-                    events[newEvent] = {numdersOfCall: 0};
-                }
-                return;
+                var newEventName = eventNameArray[0];
+                var newEvent = {
+                    childEvents: {},
+                    actions: {},
+                    numdersOfCall: 0
+                };
+                newEvent.actions[studentIndex] = callback;
+                parentEvent.childEvents[newEventName] = newEvent;
+                return parentEvent.childEvents[newEventName];
             }
-            var nextEvent = eventNameArray.shift();
-            if (!listInHierarchy[nextEvent]) {
-                listInHierarchy[nextEvent] = [];
+            var nextEventName = eventNameArray.shift();
+            if (!parentEvent.childEvents[nextEventName]) {
+                var nextEvent = {
+                    childEvents: {},
+                    actions: {},
+                    numdersOfCall: 0
+                };
+                parentEvent.childEvents[nextEventName] = nextEvent;
             }
-            this.recursiveAdd(listInHierarchy[nextEvent], eventNameArray);
-            return;
+            newEvent = parentEvent.childEvents[nextEventName];
+            return this.recursiveAdd(newEvent, eventNameArray, callback, studentIndex);
         },
 
-        recursiveOff: function (listInHierarchy, student) {
-            if (typeof listInHierarchy === 'undefined') {
+        recursiveOff: function (parentEvent, studentIndex) {
+            delete parentEvent.actions[studentIndex];
+            if (Object.keys(parentEvent.childEvents).length === 0) {
                 return;
-            };
-            for (var i = 0; i < listInHierarchy.length; i++) {
-                var e = listInHierarchy[i];
-                for (signedStudent in events[e]) {
-                    if (signedStudents[signedStudent] === student) {
-                        delete events[e][signedStudent];
-                    }
-                }
-                this.recursiveOff(listInHierarchy[e], student);
+            }
+            for (i in parentEvent.childEvents) {
+                this.recursiveOff(parentEvent.childEvents[i], studentIndex);
             }
             return;
         }
     };
 };
+
+
+function IsEventExist(events, eventName) {
+    var eventNameArray = eventName.split('.');
+    var childEvents = events.childEvents;
+    for (var i = 0; i < eventNameArray.length; i++) {
+        var name = eventNameArray[i];
+        if (!childEvents[name]) {
+            return false;
+        }
+        childEvents = childEvents[name].childEvents;
+    };
+    return true;
+}

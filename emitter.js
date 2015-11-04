@@ -7,7 +7,7 @@ module.exports = function () {
     var eventsStatus = {};
     var subscribe = function (eventName, student, callback) {
         // TODO вынести сюда общий код из on, several, through
-    }
+    };
     return {
         on: function (eventName, student, callback) {
             var studentIndex;

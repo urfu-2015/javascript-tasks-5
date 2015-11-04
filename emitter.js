@@ -26,30 +26,30 @@ module.exports = function () {
             while (eventName.lastIndexOf('.') !== -1) {
                 eventName = eventName.substring(0, eventName.lastIndexOf('.'));
                 if (this.events[eventName]) {
-                    for (var i = 0; i < this.events[eventName].length; i++) {
-                        if (!this.events[eventName][i].count &&
-                            !this.events[eventName][i].period) {
-                            this.events[eventName][i].reaction
-                                .call(this.events[eventName][i].student);
+                    this.events[eventName].forEach(function (item, i, array) {
+                        if (!item.count &&
+                            !item.period) {
+                            item.reaction
+                                .call(item.student);
                         }
-                        if (this.events[eventName][i].count) {
-                            this.events[eventName][i].count--;
-                            if (this.events[eventName][i].count == 0) {
-                                this.off(eventName, this.events[eventName][i].student);
+                        if (item.count) {
+                            item.count--;
+                            if (item.count == 0) {
+                                this.off(eventName, item.student);
                             }
-                            this.events[eventName][i].reaction
-                                .call(this.events[eventName][i].student);
+                            item.reaction
+                                .call(item.student);
                         }
-                        if (this.events[eventName][i].period) {
-                            this.events[eventName][i].current++;
-                            if (this.events[eventName][i].current ==
-                                this.events[eventName][i].period) {
-                                this.events[eventName][i].current = 0;
-                                this.events[eventName][i].reaction
-                                    .call(this.events[eventName][i].student);
+                        if (item.period) {
+                            item.current++;
+                            if (item.current ==
+                                item.period) {
+                                item.current = 0;
+                                item.reaction
+                                    .call(item.student);
                             }
                         }
-                    }
+                    });
                 }
             }
         },

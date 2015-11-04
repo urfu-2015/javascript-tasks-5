@@ -13,11 +13,16 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
-                for (var i = 0; i < this.eventsOfStudents.length; i++) {
-                    if (this.eventsOfStudents[i].name.indexOf(eventName) >= 0 || student === this.eventsOfStudents[i].student) {
-                        this.eventsOfStudents.splice(i, 1);
-                    }
+            //var currentEvent = eventName.split('.');
+            //if (currentEvent.length < 2) {
+
+            //}
+            for (var i = 0; i < this.eventsOfStudents.length; i++) {
+                if (this.eventsOfStudents[i].name.indexOf(eventName) >= 0 &&
+                    student === this.eventsOfStudents[i].student) {
+                    this.eventsOfStudents.splice(i, 1);
                 }
+            }
         },
 
         emit: function (eventName) {

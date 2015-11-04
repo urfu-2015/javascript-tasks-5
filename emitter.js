@@ -1,61 +1,52 @@
 'use strict';
 
-var events = [];
-
 module.exports = function () {
+    var events = [];
     return {
         on: function (eventName, student, callback) {
-            events.push({ eventName: eventName, student: student, callback: callback});
+            events.push({eventName, student: student, callback: callback,
+                through: NaN, curent: NaN});
         },
 
         off: function (eventName, student) {
-
             events = events.filter(item => {
-                var eventsName = item.eventName.split('.');
-                return eventsName[0] !== eventName || item.student !== student;
+                return !(inNamespace(item, eventName) || item.student !== student);
             });
         },
 
         emit: function (eventName) {
-            var eventsName = eventName.split('.');
-            eventsName.length === 1 || eventsName.push(eventName);
-
-            for (var eventName of eventsName) {
-                for (var item of events) {
-                    if (item.eventName === eventName) {
-                        throughEmit(item);
-                    }
+            for (var item of events) {
+                if (eventName.indexOf(item.eventName) === 0) {
+                    item.callback.call(item.student);
                 }
             }
             events = events.filter(item => {
-                if (item.hasOwnProperty('count')) {
-                    item.count --;
-                    if (item.count === 0) {
+                item.curent --;
+                if (item.curent === 0) {
+                    if (isNaN(item.through)) {
                         return false;
                     }
+                    item.curent = item.through;
                 }
                 return true;
             });
         },
 
         several: function (eventName, student, callback, n) {
-            events.push({ eventName: eventName, student: student, callback: callback, count: n});
+            n = n > 0 ? n : 0;
+            events.push({eventName: eventName, student: student, callback: callback,
+                through: NaN, curent: n});
         },
 
         through: function (eventName, student, callback, n) {
-            events.push({ eventName: eventName, student: student,
-                callback: callback, through: n, curent: 0});
+            n = n > 0 ? n : 0;
+            events.push({eventName: eventName, student: student,
+                callback: callback, through: n, curent: n});
         }
     };
-};
-function throughEmit(item) {
-    if (!item.hasOwnProperty('through')) {
-        item.callback.call(item.student);
-    } else {
-        item.curent ++;
-        if (item.curent - 1 === item.through) {
-            item.curent = 0;
-            item.callback.call(item.student);
-        }
+    function inNamespace(item, eventName) {
+        return item.eventName.indexOf(eventName + '.') === 0 ||
+            (item.eventName.indexOf(eventName) === 0 &&
+            item.eventName.length === eventName.length);
     }
-}
+};

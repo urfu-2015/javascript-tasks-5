@@ -11,7 +11,7 @@ module.exports = function () {
                 this.students.push(student);
             }
 
-            if (!student.hasOwnProperty('events')) {
+            if (!student.hasOwnProperty('events')){
                 student.events = {};
             }
 
@@ -22,8 +22,13 @@ module.exports = function () {
             var IndexOfStudent = this.students.indexOf(student);
 
             if (IndexOfStudent !== -1) {
-                if(this.students[IndexOfStudent].events.hasOwnProperty(eventName)) {
-                    delete this.students[IndexOfStudent].events[eventName];
+                var EventsOfStudent = this.students[IndexOfStudent].events;
+                for (var event in EventsOfStudent) {
+                    if (EventsOfStudent.hasOwnProperty(event)) {
+                        if (event.indexOf(eventName) !== -1) {
+                            delete this.students[IndexOfStudent].events[event];
+                        }
+                    }
                 }
             }
         },
@@ -35,12 +40,12 @@ module.exports = function () {
 
             for (var i = 0; i < lenStudents; i++) {
                 for (var j = 0; j < lenEvents; j++) {
-                    var eventEmitted = events.slice(0, j + 1).join('.');
-                    if (this.students[i].events.hasOwnProperty(eventEmitted)) {
-                        this.students[i].events[eventEmitted].apply(this.students[i]);
+                    var emittedEvent = events.slice(0, j + 1).join('.');
+                    if (this.students[i].events.hasOwnProperty(emittedEvent)) {
+                        this.students[i].events[emittedEvent].apply(this.students[i]);
                     }
                 }
             }
         }
-    };
-};
+    }
+}

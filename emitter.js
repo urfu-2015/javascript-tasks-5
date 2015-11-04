@@ -16,20 +16,36 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
-            var indexEvent = getIndexEventName(allEvents, eventName);
-            return allEvents[indexEvent].participants.filter(function (name) {
+            var listEvent = eventName.split('.');
+            var countEventName = listEvent[0];
+            var indexEvent;
+            for (var i = 0; i < listEvent.length; i++) {
+                if (i > 0) {
+                    countEventName += '.' + listEvent[i];
+                }
+                indexEvent = getIndexEventName(allEvents, countEventName);
+                allEvents[indexEvent].participants = allEvents[indexEvent].participants.filter(function (name) {
                 return name !== student;
             });
+            }
+            return allEvents;
         },
 
         emit: function (eventName) {
-            var indexEvent;
-            eventName.split('.').forEach(function (oneEvent) {
-                indexEvent = getIndexEventName(allEvents, oneEvent);
-                if (indexEvent > -1) {
-                    return allEvents[indexEvent].senceEvent;
+            var listEvent = eventName.split('.');
+            var countEventName = listEvent[0];
+            for (var i = 0; i < listEvent.length; i++) {
+                if (i > 0) {
+                    countEventName += '.' + listEvent[i];
                 }
-            });
+                indexEvent = getIndexEventName(allEvents, countEventName);
+                if (indexEvent > -1) {
+                    var callBackEvent = allEvents[indexEvent].senceEvent;
+                    allEvents[indexEvent].participants.forEach(function (elem) {
+                        callBackEvent.apply(elem);
+                    });
+                }
+            };
         }
     };
 }

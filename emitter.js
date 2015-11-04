@@ -42,7 +42,7 @@ module.exports = function () {
                 for (var i = 0; i < events.length; i++) {
                     for (var j = 0; j < this.eventsOfStudents.length; j++) {
                         var current = this.eventsOfStudents[j];
-                        if (events[i] === current.name){
+                        if (events[i] === current.name) {
                             var callback = current.callback;
                             callback.call(this.eventsOfStudents[j].student);
                         }
@@ -50,7 +50,7 @@ module.exports = function () {
                 }
             }
         },
-        is_exist_name: function(eventName, events) {
+        is_exist_name: function (eventName, events) {
             for (var i = 0; i < events.length; i++) {
                 if (eventName === events[i].name) {
                     return true;

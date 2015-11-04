@@ -3,7 +3,6 @@
 module.exports = function () {
     return {
         students: [],
-        events: [],
 
         on: function (eventName, student, callback) {
             if (this.students.indexOf(student) === -1) {
@@ -16,8 +15,7 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
-            if (this.students.indexOf(student) !== -1 && student.hasOwnProperty('events')) {
-                delete student.events[eventName];
+            if (this.students.indexOf(student) !== -1) {
                 var studentEvents = Object.keys(student.events);
                 studentEvents.forEach(function (event) {
                     if (event.indexOf(eventName) === 0) {
@@ -31,11 +29,7 @@ module.exports = function () {
             var eventLevels = eventName.split('.');
             var events = [];
             eventLevels.forEach(function (event, index) {
-                if (index > 0) {
-                    events.push(events[index - 1] + '.' + event);
-                } else {
-                    events.push(event);
-                }
+                (index > 0) ? events.push(events[index - 1] + '.' + event) : events.push(event);
             });
             this.students.forEach(function (student) {
                 events.forEach(function (currentEvent) {

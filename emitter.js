@@ -18,7 +18,7 @@ module.exports = function () {
 
             //}
             for (var i = 0; i < this.eventsOfStudents.length; i++) {
-                if (this.eventsOfStudents[i].name.indexOf(eventName) >= 0 &&
+                if (eventName.indexOf(this.eventsOfStudents[i].name) >= 0 &&
                     student === this.eventsOfStudents[i].student) {
                     this.eventsOfStudents.splice(i, 1);
                 }

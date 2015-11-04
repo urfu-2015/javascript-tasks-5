@@ -11,7 +11,7 @@ module.exports = function () {
                 this.students.push(student);
             }
 
-            if (!student.hasOwnProperty('events')){
+            if (!student.hasOwnProperty('events')) {
                 student.events = {};
             }
 
@@ -47,5 +47,5 @@ module.exports = function () {
                 }
             }
         }
-    }
-}
+    };
+};

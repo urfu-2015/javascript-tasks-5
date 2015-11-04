@@ -2,99 +2,50 @@ module.exports = function () {
     var subs = [];
     return {
         on: function (eventName, student, callback) {
-            isFunction(callback);
-            isString(eventName);
-
-            var newSub = {
-                student: student,
-                eventName: eventName,
-                callback: callback
-            };
-            subs.push(newSub);
+            checkInput(eventName, student, callback);
+            subs.push(createSub(student, eventName, callback, NaN, NaN, NaN));
         },
 
         off: function (eventName, student) {
-            isString(eventName);
+            checkInput(eventName, student);
             subs = subs.filter(function (sub) {
                 return (!(sub.eventName.indexOf(eventName) === 0 && sub.student === student));
             });
         },
 
         emit: function (eventName) {
-            isString(eventName);
+            checkInput(eventName);
             var events = getEvents(eventName);
             subs.forEach(function (sub, index, subs) {
-                var AbleToCall = (sub.callsleft !== 0);
-                var timeToCall = (sub.callTime === sub.nextCall);
+                var isCorrectEvent = (events.indexOf(sub.eventName) !== -1);
+                var isAbleToCall = (sub.callsleft !== 0);
+                var isTimeToCall = (sub.callTime === sub.nextCall ||
+                                isNaN(sub.callTime) && isNaN(sub.nextCall));
 
-                if (AbleToCall && timeToCall && events.indexOf(sub.eventName) !== -1) {
+                if (isAbleToCall && isTimeToCall && isCorrectEvent) {
                     sub.callback.call(sub.student);
-                    if (sub.nextCall !== undefined) {
-                        sub.nextCall = 1;
-                    }
-                    if (sub.callsleft !== undefined) {
-                        sub.callsleft--;
-                    }
+                    isNaN(sub.nextCall) ? sub.nextCall = NaN : sub.nextCall = 1;
+                    sub.callsleft--;
                 }
-                if (!timeToCall &&
-                    sub.nextCall !== undefined &&
-                    events.indexOf(sub.eventName) !== -1) {
+                if (!isTimeToCall && isCorrectEvent) {
                     sub.nextCall++;
                 }
-                if (!AbleToCall) {
+                if (!isAbleToCall) {
                     delete subs[index];
                 }
             });
         },
 
         several: function (eventName, student, callback, n) {
-            isFunction(callback);
-            isString(eventName);
-            nonNegativeNumber(n);
-
-            var newSub = {
-                student: student,
-                eventName: eventName,
-                callback: callback,
-                callsleft: n
-            };
-            subs.push(newSub);
+            checkInput(eventName, student, callback, n);
+            subs.push(createSub(student, eventName, callback, n, NaN, NaN));
         },
 
         through: function (eventName, student, callback, n) {
-            isFunction(callback);
-            isString(eventName);
-            nonNegativeNumber(n);
-
-            var newSub = {
-                student: student,
-                eventName: eventName,
-                callback: callback,
-                nextCall: 1,
-                callTime: n
-            };
-            subs.push(newSub);
+            checkInput(eventName, student, callback, n);
+            subs.push(createSub(student, eventName, callback, NaN, 1, n));
         }
     };
-};
-
-function isFunction(func) {
-    if (typeof func !== 'function') {
-        throw new TypeError('callback must have a function type');
-    }
-};
-
-function isString(string) {
-    if (typeof string !== 'string') {
-        throw new TypeError('eventName must have a string type');
-    }
-};
-
-function nonNegativeNumber(number) {
-    var n = Number(number);
-    if (!(isNaN(n) || n >= 0)) {
-        throw new TypeError('n must have a number type');
-    }
 };
 
 function getEvents(eventName) {
@@ -103,4 +54,35 @@ function getEvents(eventName) {
         events[i] = events[i - 1] + '.' + events[i];
     }
     return events;
+}
+
+function checkInput() {
+    var arg = Array.from(arguments);
+    var length = arg.length;
+    if (length > 0 && typeof arg[0] !== 'string') {
+        throw new TypeError('"eventName" has ' + typeof arg[0] + ' type. string type expected');
+    }
+    if (length > 2 && typeof arg[2] !== 'function') {
+        throw new TypeError('"callback" has ' + typeof arg[2] + ' type. function type expected');
+    }
+    var n = Number(arg[3]);
+    if (length > 3) {
+        if (isNaN(arg[3])) {
+            throw new TypeError('"n" has ' + typeof arg[3] + ' type. number type expected');
+        }
+        if (arg[3] < 0) {
+            throw new RangeError('n = ' + arg[3] + '. expected: n >= 0');
+        }
+    }
+}
+
+function createSub(student, eventName, callback, callsleft, nextCall, callTime) {
+    return {
+        student: student,
+        eventName: eventName,
+        callback: callback,
+        callsleft: callsleft,
+        nextCall: nextCall,
+        callTime: callTime
+    };
 }

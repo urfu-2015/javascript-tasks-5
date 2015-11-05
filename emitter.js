@@ -16,7 +16,7 @@ module.exports = function () {
 
         emit: function (eventName) {
             for (var item of events) {
-                if (eventName.indexOf(item.eventName) === 0) {
+                if (eventName.indexOf(item.eventName) === 0 && isNaN(item.through)) {
                     item.callback.call(item.student);
                 }
             }
@@ -27,6 +27,7 @@ module.exports = function () {
                         return false;
                     }
                     item.curent = item.through;
+                    item.callback.call(item.student);
                 }
                 return true;
             });

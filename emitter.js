@@ -15,7 +15,7 @@ module.exports = function () {
                 if (event.indexOf(eventName) >= 0) {
                     for (var i = 0; i < this.eventsOfStudents[event].length; i++) {
                         if (this.eventsOfStudents[event][i].student === student) {
-                            this.eventsOfStudents.splice(i, 1);
+                            this.eventsOfStudents[event].splice(i, 1);
                             i--;
                         }
                     }
@@ -25,17 +25,17 @@ module.exports = function () {
 
         emit: function (eventName) {
             if (eventName in this.eventsOfStudents) {
-                var events = this.createEvents();
+                var events = this.createEvents(eventName);
                 for (var i = 0; i < events.length; i++) {
                     for (var j = 0; j < this.eventsOfStudents[events[i]].length; j++) {
                         var current = this.eventsOfStudents[events[i]][j];
-                            var callback = current.callback;
-                            callback.call(this.eventsOfStudents[j].student);
+                        var callback = current.callback;
+                        callback.call(current.student);
                     }
                 }
             }
         },
-        createEvents: function () {
+        createEvents: function (eventName) {
             var eventsList = eventName.split('.');
             var nameEvent = eventsList[0];
             var events = [nameEvent];

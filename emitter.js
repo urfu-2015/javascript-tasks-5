@@ -22,6 +22,16 @@ module.exports = function () {
         }
     };
 
+    var _createSubscriber = function (student, callback, emitCounter, maxEmit, emitFrequency) {
+        return {
+            studentObject: student,
+            callback: callback,
+            emitCounter: emitCounter,
+            maxEmit: maxEmit,
+            emitFrequency: emitFrequency
+        };
+    };
+
     var _deleteSubscriber = function (eventName, student) {
         var eventStudents = events[eventName];
         for (var i = eventStudents.length - 1; i >= 0; i--) {
@@ -42,13 +52,7 @@ module.exports = function () {
 
     return {
         on: function (eventName, student, callback) {
-            var subscriber = {
-                studentObject: student,
-                callback: callback,
-                emitCounter: 0,
-                maxEmit: Number.MAX_SAFE_INTEGER,
-                emitFrequency: 1
-            };
+            var subscriber = _createSubscriber(student, callback, 0, Number.MAX_SAFE_INTEGER, 1);
             _addSubscriber(eventName, student, subscriber);
         },
 
@@ -75,24 +79,18 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            var subscriber = {
-                studentObject: student,
-                callback: callback,
-                emitCounter: 0,
-                maxEmit: n,
-                emitFrequency: 1
-            };
+            if (n <= 0) {
+                return;
+            }
+            var subscriber = _createSubscriber(student, callback, 0, n, 1);
             _addSubscriber(eventName, student, subscriber);
         },
 
         through: function (eventName, student, callback, n) {
-            var subscriber = {
-                studentObject: student,
-                callback: callback,
-                emitCounter: 0,
-                maxEmit: Number.MAX_SAFE_INTEGER,
-                emitFrequency: n
-            };
+            if (n <= 0) {
+                return;
+            }
+            var subscriber = _createSubscriber(student, callback, 0, Number.MAX_SAFE_INTEGER, n);
             _addSubscriber(eventName, student, subscriber);
         }
     };

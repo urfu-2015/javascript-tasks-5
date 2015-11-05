@@ -5,7 +5,7 @@ module.exports = function () {
         on: function (eventName, student, callback) {
             if (!(eventName in this.eventsOfStudents)) {
                 this.eventsOfStudents[eventName] = [];
-                }
+            }
             this.eventsOfStudents[eventName].push({student: student, callback: callback});
 
         },

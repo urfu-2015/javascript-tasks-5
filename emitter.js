@@ -14,7 +14,8 @@ module.exports = function () {
             for (var i = 0; i < keys.length; i++) {
                 if (keys[i].indexOf(eventName) != -1) {
                     for (var j = 0; j < this.events[keys[i]].length; j++) {
-                        if (this.events[keys[i]][j].student === student) {
+                        if (this.events[keys[i]][j] &&
+                                this.events[keys[i]][j].student === student) {
                             delete this.events[keys[i]][j];
                         }
                     }
@@ -24,17 +25,13 @@ module.exports = function () {
 
         emit: function (eventName) {
             var keys = Object.keys(this.events);
-            var names = [];
-            names = [eventName];
-            if (eventName.indexOf('.') != -1) {
-                names.push(eventName.slice(0, eventName.indexOf('.')));
-            }
+            var names = eventName.split('.');
             var events = this.events;
-            names.forEach(function (name) {
-                for (var i = 0; i < keys.length; i++) {
-                    if (keys[i] === name) {
-                        callFunction(name, events);
-                    }
+            keys.forEach(function (key) {
+                if (key.indexOf(names[1]) !== -1 || key === names[0]) {
+                    events[key].forEach(function (student) {
+                        student.callback.call(student.student);
+                    });
                 }
             });
         },
@@ -48,10 +45,3 @@ module.exports = function () {
         }
     };
 };
-function callFunction(eventName, events) {
-    events[eventName].forEach(function (student) {
-        if (student !== undefined) {
-            student.callback.call(student.student);
-        }
-    });
-}

@@ -4,23 +4,20 @@ function initializeHandler(student, func, n, type) {
         function: func.bind(student)
     };
     if (typeof n !== 'undefined') {
-        newEventHandler['numOfCalls'] = 0;
+        newEventHandler.numOfCalls = 0;
         if (type === 'several') {
-            newEventHandler['callsLimit'] = n;
+            newEventHandler.callsLimit = n;
         }
         if (type === 'through') {
-            newEventHandler['callsAlternation'] = n;
+            newEventHandler.callsAlternation = n;
         }
     }
     return newEventHandler;
 }
 
 function addHandler(listOfEvents, eventName, handler) {
-    if (Object.keys(listOfEvents).indexOf(eventName) + 1) {
-        listOfEvents[eventName].push(handler);
-    } else {
-        listOfEvents[eventName] = [handler];
-    }
+    listOfEvents[eventName] = listOfEvents[eventName] || [];
+    listOfEvents[eventName].push(handler);
 }
 
 module.exports = function () {
@@ -55,24 +52,25 @@ module.exports = function () {
 
         emit: function (eventName) {
             for (var i in this.listOfEvents) {
-                if (eventName.indexOf(i) + 1) {
+                if (eventName.indexOf(i) === 0) {
                     var currentEvent = this.listOfEvents[i];
                     for (var j in currentEvent) {
                         if (currentEvent[j].hasOwnProperty('callsLimit')) {
-                            if (currentEvent[j]['numOfCalls'] < currentEvent[j]['callsLimit']) {
-                                currentEvent[j]['numOfCalls']++;
+                            if (currentEvent[j].numOfCalls < currentEvent[j].callsLimit) {
+                                currentEvent[j].numOfCalls++;
                             } else {
+                                this.off(eventName, currentEvent[j].student);
                                 continue;
                             }
                         } else if (currentEvent[j].hasOwnProperty('callsAlternation')) {
-                            currentEvent[j]['numOfCalls']++;
-                            if ((currentEvent[j]['numOfCalls'] %
-                                currentEvent[j]['callsAlternation']) ||
-                                currentEvent[j]['callsAlternation'] === 0) {
+                            currentEvent[j].numOfCalls++;
+                            if ((currentEvent[j].numOfCalls %
+                                currentEvent[j].callsAlternation) ||
+                                currentEvent[j].callsAlternation === 0) {
                                 continue;
                             }
                         }
-                        currentEvent[j]['function']();
+                        currentEvent[j].function();
                     }
                 }
             }

@@ -26,8 +26,8 @@ module.exports = function () {
                     return event.name === currentEvent;
                 });
 
-                if (!this.emitWrapper(leafEvents)) {
-                    return false;
+                if (!emitWrapper(leafEvents)) {
+                    //continue;
                 }
 
                 currentEvent = currentEvent.substr(0, currentEvent.lastIndexOf('.'));
@@ -54,30 +54,30 @@ module.exports = function () {
                 callback: callback
             };
             events.push(newEvent);
-        },
-
-        emitWrapper: function (events) {
-            if (events.length <= 0) {
-                return false;
-            }
-            events.forEach(function (event) {
-                if ('lifeCount' in event) {
-                    if (event.lifeCount <= 0) {
-                        return;
-                    }
-                    --event.lifeCount;
-                }
-                if ('ignoreCount' in event) {
-                    --event.ignoreCount;
-                    if (event.ignoreCount >= 0) {
-                        return;
-                    }
-                    event.ignoreCount = event.maxIgnoreCount;
-                }
-                event.callback.call(event.student);
-            });
-            return true;
         }
     };
 };
 
+function emitWrapper(events) {
+    if (events.length <= 0) {
+        return false;
+    }
+    events.forEach(function (event) {
+        if (event.hasOwnProperty('lifeCount')) {
+            if (event.lifeCount <= 0) {
+                return;
+            }
+            --event.lifeCount;
+        }
+        if (event.hasOwnProperty('ignoreCount')) {
+            --event.ignoreCount;
+            var ignoreCount = event.ignoreCount;
+            if (ignoreCount > 0 || ignoreCount < -1) {
+                return;
+            }
+            event.ignoreCount = event.maxIgnoreCount;
+        }
+        event.callback.call(event.student);
+    });
+    return true;
+}

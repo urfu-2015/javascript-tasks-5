@@ -28,7 +28,12 @@ module.exports = function () {
             var names = eventName.split('.');
             var events = this.events;
             keys.forEach(function (key) {
-                if (key.indexOf(names[1]) !== -1 || key === names[0]) {
+                if (key === names[0]) {
+                    events[key].forEach(function (student) {
+                        student.callback.call(student.student);
+                    });
+                }
+                if (key.indexOf(names[1]) !== -1 && key.indexOf(names[1]) !== 0) {
                     events[key].forEach(function (student) {
                         student.callback.call(student.student);
                     });

@@ -17,7 +17,7 @@ module.exports = function () {
                 }
                 var newAction = {};
                 newAction.studentIndex = studentIndex;
-                newAction.studentAction = callback
+                newAction.studentAction = callback;
                 pathToEvent.actions.push(newAction);
                 return pathToEvent;
             };
@@ -134,7 +134,7 @@ module.exports = function () {
 
         recursiveOff: function (parentEvent, studentIndex) {
             for (var i = 0; i < parentEvent.actions.length; i++) {
-                if(parentEvent.actions[i].studentIndex === studentIndex) {
+                if (parentEvent.actions[i].studentIndex === studentIndex) {
                     parentEvent.actions.splice(i, 1);
                 }
             };

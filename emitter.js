@@ -3,6 +3,7 @@ module.exports = function () {
     var events = {childEvents: {}};
     return {
         on: function (eventName, student, callback) {
+            this.off(eventName, student);
             if (signedStudents.indexOf(student) === -1) {
                 signedStudents.push(student);
             }
@@ -14,13 +15,19 @@ module.exports = function () {
                     var eventName = eventNameArray[i];
                     pathToEvent = pathToEvent.childEvents[eventName];
                 }
-                pathToEvent.actions[studentIndex] = callback;
+                var newAction = {};
+                newAction.studentIndex = studentIndex;
+                newAction.studentAction = callback
+                pathToEvent.actions.push(newAction);
                 return pathToEvent;
             };
             return this.recursiveAdd(events, eventNameArray, callback, studentIndex);
         },
 
         off: function (eventName, student) {
+            if (!IsEventExist(events, eventName)) {
+                return;
+            };
             var eventNameArray = eventName.split('.');
             pathToEvent = events;
             for (var i = 0; i < eventNameArray.length; i++) {
@@ -38,16 +45,19 @@ module.exports = function () {
             var eventNameArray = eventName.split('.');
             var currentEvent = events;
             for (var i = 0; i < eventNameArray.length; i++) {
-                var name = eventNameArray[i];
-                var e = currentEvent.childEvents[name];
-                e.numdersOfCall += 1;
-                for (studentIndex in e.actions) {
-                    if (this.checkSeveralAndThrough(e, studentIndex)) {
-                        var action = e.actions[studentIndex];
+                var eventName = eventNameArray[i];
+                currentEvent = currentEvent.childEvents[eventName];
+            }
+            while (currentEvent != events) {
+                currentEvent.numdersOfCall += 1;
+                for (var j = 0; j < currentEvent.actions.length; j++) {
+                    var studentIndex = currentEvent.actions[j].studentIndex;
+                    if (this.checkSeveralAndThrough(currentEvent, studentIndex)) {
+                        var action = currentEvent.actions[j].studentAction;
                         action.call(signedStudents[studentIndex]);
                     }
                 }
-                currentEvent = e;
+                currentEvent = currentEvent.parentEvent;
             }
         },
 
@@ -97,10 +107,14 @@ module.exports = function () {
                 var newEventName = eventNameArray[0];
                 var newEvent = {
                     childEvents: {},
-                    actions: {},
-                    numdersOfCall: 0
+                    actions: [],
+                    numdersOfCall: 0,
+                    parentEvent: parentEvent
                 };
-                newEvent.actions[studentIndex] = callback;
+                var newAction = {};
+                newAction.studentIndex = studentIndex;
+                newAction.studentAction = callback;
+                newEvent.actions.push(newAction);
                 parentEvent.childEvents[newEventName] = newEvent;
                 return parentEvent.childEvents[newEventName];
             }
@@ -108,8 +122,9 @@ module.exports = function () {
             if (!parentEvent.childEvents[nextEventName]) {
                 var nextEvent = {
                     childEvents: {},
-                    actions: {},
-                    numdersOfCall: 0
+                    actions: [],
+                    numdersOfCall: 0,
+                    parentEvent: parentEvent
                 };
                 parentEvent.childEvents[nextEventName] = nextEvent;
             }
@@ -118,7 +133,11 @@ module.exports = function () {
         },
 
         recursiveOff: function (parentEvent, studentIndex) {
-            delete parentEvent.actions[studentIndex];
+            for (var i = 0; i < parentEvent.actions.length; i++) {
+                if(parentEvent.actions[i].studentIndex === studentIndex) {
+                    parentEvent.actions.splice(i, 1);
+                }
+            };
             if (Object.keys(parentEvent.childEvents).length === 0) {
                 return;
             }

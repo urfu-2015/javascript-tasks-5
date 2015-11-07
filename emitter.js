@@ -3,7 +3,6 @@ module.exports = function () {
     var events = {childEvents: {}};
     return {
         on: function (eventName, student, callback) {
-            this.off(eventName, student);
             if (signedStudents.indexOf(student) === -1) {
                 signedStudents.push(student);
             }
@@ -39,13 +38,16 @@ module.exports = function () {
         },
 
         emit: function (eventName) {
-            if (!IsEventExist(events, eventName)) {
-                return;
-            }
+            // if (!IsEventExist(events, eventName)) {
+            //     return;
+            // }
             var eventNameArray = eventName.split('.');
             var currentEvent = events;
             for (var i = 0; i < eventNameArray.length; i++) {
                 var eventName = eventNameArray[i];
+                if (!currentEvent.childEvents[eventName]) {
+                    break;
+                }
                 currentEvent = currentEvent.childEvents[eventName];
             }
             while (currentEvent != events) {

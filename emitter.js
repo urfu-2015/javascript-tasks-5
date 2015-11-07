@@ -26,9 +26,7 @@ module.exports = function () {
                     return event.name === currentEvent;
                 });
 
-                if (!emitWrapper(leafEvents)) {
-                    //continue;
-                }
+                emitWrapper(leafEvents);
 
                 currentEvent = currentEvent.substr(0, currentEvent.lastIndexOf('.'));
             }

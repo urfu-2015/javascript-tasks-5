@@ -31,15 +31,11 @@ module.exports = function () {
                                 }
                                 break;
                             case 'through':
-                                var mod = -1;
-                                if (called > 0) {
-                                    mod = called % counts;
-                                }
+                                var mod = called % counts;
                                 if (mod === 0) {
                                     eventRecord.action.apply(eventRecord.student);
                                 }
                                 eventRecord.calledTimes++;
-                                break;
                         }
                     }
                 });

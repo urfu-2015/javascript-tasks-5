@@ -23,9 +23,9 @@ module.exports = function () {
         },
 
         off: function (eventLayers, student) {
-            var indexCurrentStudents = this.students.indexOf(student);
+            var elem = this.students.find(getElem, student);
             eventLayers = eventLayers.split('.');
-            var currentLayer = this.students[indexCurrentStudents];
+            var currentLayer = elem;
             for (var i in eventLayers.slice(0,eventLayers.length)) {
                 currentLayer = currentLayer[eventLayers[i]];
             }

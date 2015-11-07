@@ -38,7 +38,7 @@ module.exports = function () {
             for (var index in this.students) {
                 var currentLayer = this.students[index];
                 var stackOfFunctions = [];
-                for (var i = 0; i < eventLayers.length; i++) {
+                for (var i in currentLayer) {
                     if (currentLayer[eventLayers[i]] === undefined) {
                         break;
                     }

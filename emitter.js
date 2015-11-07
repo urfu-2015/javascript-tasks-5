@@ -1,4 +1,5 @@
 function getElem(element, index, arrays){
+    console.log(element == this);
     return (element == this);
 }
 
@@ -23,9 +24,10 @@ module.exports = function () {
 
         off: function (eventLayers, student) {
             var elem = this.students.find(getElem, student);
+
             eventLayers = eventLayers.split('.');
             var currentLayer = elem;
-            for (var i in eventLayers.slice(0,eventLayers.length)) {
+            for (var i in eventLayers.slice(0,eventLayers.length - 1)) {
                 currentLayer = currentLayer[eventLayers[i]];
             }
             delete currentLayer[eventLayers[eventLayers.length - 1]];

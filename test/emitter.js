@@ -100,4 +100,66 @@ describe('Emitter', function () {
 
         expect(cb).to.have.been.calledOnce;
     });
+
+    it('Не должен рассылать сообщения по событию по истечению лимита рассылок (several)', function () {
+        var user = {};
+        var cb = sinon.spy();
+
+        ee.several('name', user, cb, 1);
+        ee.emit('name');
+        ee.emit('name');
+        ee.emit('name');
+
+        expect(cb).to.have.been.calledOnce;
+    });
+
+    it('При недопустимом значении N функция through не должна вызываться', function () {
+        var user = {};
+        var cb = sinon.spy();
+        var n = -1;
+
+        ee.through('name', user, cb, n);
+        ee.emit('name');
+        ee.emit('name');
+        ee.emit('name');
+
+        expect(cb).to.not.have.been.called;
+    });
+
+    it('Должен рассылать сообщения по событию на каждом шаге при N = 0 (through)', function () {
+        var user = {};
+        var cb = sinon.spy();
+        var n = 0;
+
+        ee.through('name', user, cb, n);
+        ee.emit('name');
+        ee.emit('name');
+
+        expect(cb).to.have.been.calledTwice;
+    });
+
+    it('Должен рассылать сообщения по событию только спустя каждые N шагов (through)', function () {
+        var user = {};
+        var cb = sinon.spy();
+        var n = 2;
+
+        ee.through('name', user, cb, n);
+        // 0 1 0 1 0 1 0
+        for (var i = 0; i < 7; ++i) {
+            ee.emit('name');
+        }
+
+        expect(cb).to.have.been.calledThrice;
+    });
+
+    it('Должен рассылать сообщения по событиям нижних уровней, если вызвано незарегистрированное событие высшего уровня', function () {
+        var user = {};
+        var cb = sinon.spy();
+
+        ee.on('name.subname', user, cb);
+        ee.on('name.subname.thirdname.endname', user, cb);
+        ee.emit('name.subname.thirdname.endname.finita');
+
+        expect(cb).to.have.been.calledTwice;
+    });
 });

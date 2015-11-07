@@ -1,36 +1,38 @@
+function getElem(element, index, arrays){
+    return (element == this);
+}
+
 module.exports = function () {
     return {
         students: [],
-        on: function (eventName, student, callback) {
-            var eventLayers = eventName.split('.');
-            var studentWithEvent = student;
-            var isNewStudent = this.students.indexOf(student);
+        on: function (eventLayers, studentWithEvent, callback) {
+            eventLayers = eventLayers.split('.');
+            var elem = this.students.find(getElem, studentWithEvent);
+            console.log(elem, studentWithEvent, this.students, ' lol');
             var currentLayer = studentWithEvent;
-            for (var i in eventLayers) {
+            for (var i in eventLayers.slice(0,eventLayers.length)) {
                 if (currentLayer[eventLayers[i]] === undefined) {
-                    currentLayer[eventLayers[i]] = {};
+                    currentLayer[eventLayers[i]] = {action:undefined};
                 }
                 currentLayer = currentLayer[eventLayers[i]];
             }
             currentLayer['action'] = callback;
-            if (isNewStudent == -1) {
+            if (elem == undefined) {
                 this.students.push(studentWithEvent);
             }
         },
 
-        off: function (eventName, student) {
+        off: function (eventLayers, student) {
             var indexCurrentStudents = this.students.indexOf(student);
-            var eventLayers = eventName.split('.');
+            eventLayers = eventLayers.split('.');
             var currentLayer = this.students[indexCurrentStudents];
-            for (var i = 0; i < eventLayers.length - 1; i++) {
+            for (var i in eventLayers.slice(0,eventLayers.length)) {
                 currentLayer = currentLayer[eventLayers[i]];
             }
             delete currentLayer[eventLayers[eventLayers.length - 1]];
-            console.log(this.students);
         },
 
         emit: function (eventName) {
-            console.log(eventName, 'event');
             var eventLayers = eventName.split('.');
             for (var index in this.students) {
                 var currentLayer = this.students[index];
@@ -40,8 +42,12 @@ module.exports = function () {
                         break;
                     }
                     var action = currentLayer[eventLayers[i]].action;
-                    var bindedAction = action.bind(this.students[index]);
-                    bindedAction();
+                    if (action === undefined){
+
+                    } else {
+                        var bindedAction = action.bind(this.students[index]);
+                        bindedAction();
+                    }
                     currentLayer = currentLayer[eventLayers[i]];
                 }
 

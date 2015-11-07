@@ -8,7 +8,6 @@ module.exports = function () {
         on: function (eventLayers, studentWithEvent, callback) {
             eventLayers = eventLayers.split('.');
             var elem = this.students.find(getElem, studentWithEvent);
-            console.log(elem, studentWithEvent, this.students, ' lol');
             var currentLayer = studentWithEvent;
             for (var i in eventLayers.slice(0,eventLayers.length)) {
                 if (currentLayer[eventLayers[i]] === undefined) {

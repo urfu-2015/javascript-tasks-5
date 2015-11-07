@@ -27,29 +27,24 @@ module.exports = function () {
                 eventName = eventName.substring(0, eventName.lastIndexOf('.'));
                 if (this.events[eventName]) {
                     this.events[eventName].forEach(function (item, i, array) {
-                        if (!item.count &&
-                            !item.period) {
-                            item.reaction
-                                .call(item.student);
+                        if (!item.count && !item.period) {
+                            item.reaction.call(item.student);
                         }
                         if (item.count) {
                             item.count--;
                             if (item.count == 0) {
                                 this.off(eventName, item.student);
                             }
-                            item.reaction
-                                .call(item.student);
+                            item.reaction.call(item.student);
                         }
                         if (item.period) {
                             item.current++;
-                            if (item.current ==
-                                item.period) {
+                            if (item.current == item.period) {
                                 item.current = 0;
-                                item.reaction
-                                    .call(item.student);
+                                item.reaction.call(item.student);
                             }
                         }
-                    });
+                    }, this);
                 }
             }
         },
@@ -65,8 +60,10 @@ module.exports = function () {
             if (!this.events[eventName]) {
                 this.events[eventName] = [];
             }
-            this.events[eventName].push({student: student, reaction: callback,
-                period: n, current: 0});
+            if (n > 0) {
+                this.events[eventName]
+                    .push({student: student, reaction: callback, period: n, current: 0});
+            }
         }
     };
 };

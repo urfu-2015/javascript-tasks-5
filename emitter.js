@@ -2,14 +2,14 @@ module.exports = function () {
     var events = {};
     return {
         on: function (eventName, student, callback) {
-            if (!(eventName in events)) {
+            if (!events.hasOwnProperty(eventName)) {
                 events[eventName] = [];
             }
             events[eventName].push({student: student, callback: callback});
         },
 
         off: function (eventName, student) {
-            for (var event in events) {
+            Object.keys(events).forEach(function (event) {
                 if (event === eventName || event.indexOf(eventName + '.') === 0) {
                     for (var i = 0; i < events[event].length; i++) {
                         if (events[event][i].student === student) {
@@ -17,7 +17,7 @@ module.exports = function () {
                         }
                     }
                 }
-            }
+            });
         },
 
         emit: function (eventName) {

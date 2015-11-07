@@ -10,25 +10,25 @@ function Lecturer() {
 
 Lecturer.prototype._checkPositiveNumber = function (variable) {
     if (typeof variable !== 'number' || variable <= 0) {
-        throw Error('Аргумент должен быть положительным числом');
+        throw new RangeError('Аргумент должен быть положительным числом');
     }
 };
 
 Lecturer.prototype._checkObject = function (variable) {
     if (variable === null || typeof variable !== 'object') {
-        throw Error('Аргумент должен быть объектом');
+        throw new TypeError('Аргумент должен быть объектом');
     }
 };
 
 Lecturer.prototype._checkFunction = function (variable) {
     if (typeof variable !== 'function') {
-        throw Error('Аргумент должен быть функцией');
+        throw new TypeError('Аргумент должен быть функцией');
     }
 };
 
 Lecturer.prototype._checkNonEmptyString = function (variable) {
     if (typeof variable !== 'string' || variable.length === 0) {
-        throw Error('Аргумент должен быть непустой строкой');
+        throw new TypeError('Аргумент должен быть непустой строкой');
     }
 };
 
@@ -51,14 +51,12 @@ Lecturer.prototype.off = function (eventName, student) {
     this._checkNonEmptyString(eventName);
     this._checkObject(student);
     Object.keys(this._listeners).forEach(function (event) {
-        if (event.indexOf(eventName) === 0) {
-            this._listeners[event].forEach(function (listener, number) {
-                if (listener.getStudent() === student) {
-                    delete this._listeners[event][number];
-                }
-            }.bind(this));
+        if (event === eventName || event.indexOf(eventName + '.') === 0) {
+            this._listeners[event] = this._listeners[event].filter(function (listener) {
+                return listener.getStudent() !== student;
+            });
         }
-    }.bind(this));
+    }, this);
 };
 
 Lecturer.prototype.emit = function (eventName) {

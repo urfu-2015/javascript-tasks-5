@@ -1,4 +1,4 @@
-function getElem (element, index, arrays) {
+function getElem(element, index, arrays) {
     console.log(element == this);
     return (element == this);
 }

@@ -10,25 +10,23 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
+            var _this = this;
             var keys = Object.keys(this.events);
-            for (var j = 0; j < keys.length; j++) {
-                var key = keys[j];
-                if (key.indexOf(eventName) === 0) {
-                    if (this.events[key] === undefined) {
-                        continue;
-                    }
+            Object.keys(this.events).forEach(function (key) {
+                if (key.indexOf(eventName + '.') === 0 || key === eventName) {
                     var offEvent;
-                    var events = this.events[key];
+                    var events = _this.events[key];
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].student === student) {
                             offEvent = events[i];
+                            break;
                         }
                     }
                     if (offEvent) {
                         events = events.splice(events.indexOf(offEvent), 1);
                     }
                 }
-            }
+            });
         },
 
         emit: function (eventName) {

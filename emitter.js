@@ -3,24 +3,24 @@ module.exports = function () {
 
     var emitEvent = function (eventName) {
         var eventSubscribers = subsribers[eventName];
-        if (eventSubscribers === undefined) {
+        if (!eventSubscribers) {
             return;
         }
         for (var i = 0; i < eventSubscribers.length; i++) {
             var subsriber = eventSubscribers[i];
-            subsriber.emitCounter++;
+            if (subsriber.type !== 'always') {
+                subsriber.emitCounter++;
+            }
             if (subsriber.type !== 'through') {
-                (subsriber.callback.bind(subsriber.object))();
+                subsriber.callback.apply(subsriber.object);
             } else {
-                if (subsriber.type === 'through' &&
-                    subsriber.emitCounter === subsriber.emitEvery
-                ) {
-                    (subsriber.callback.bind(subsriber.object))();
+                if (subsriber.emitCounter === subsriber.emitEvery) {
+                    subsriber.callback.apply(subsriber.object);
                     subsriber.emitCounter = 0;
                 }
             }
             if (subsriber.type === 'several' &&
-                subsriber.emitCounter == subsriber.emitLimit
+                subsriber.emitCounter === subsriber.emitLimit
             ) {
                 unsubscribe(eventName, subsriber.object);
             }
@@ -32,12 +32,13 @@ module.exports = function () {
         for (var i = 0; i < eventSubscribers.length; i++) {
             if (eventSubscribers[i].object === student) {
                 eventSubscribers.splice(i, 1);
+                i--;
             }
         }
     };
 
     var addSubsriber = function (eventName, subsriber) {
-        if (subsribers[eventName] === undefined) {
+        if (!subsribers[eventName]) {
             subsribers[eventName] = [];
         }
         subsribers[eventName].push(subsriber);
@@ -48,8 +49,7 @@ module.exports = function () {
             var subsriber = {
                 object: student,
                 callback: callback,
-                type: 'always',
-                emitCounter: 0
+                type: 'always'
             };
             addSubsriber(eventName, subsriber);
         },
@@ -74,6 +74,9 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
+            if (n <= 0) {
+                return;
+            }
             var subsriber = {
                 object: student,
                 callback: callback,
@@ -85,6 +88,9 @@ module.exports = function () {
         },
 
         through: function (eventName, student, callback, n) {
+            if (n <= 0) {
+                return;
+            }
             var subsriber = {
                 object: student,
                 callback: callback,

@@ -5,24 +5,24 @@ module.exports = function () {
         on: function (eventName, student, callback) {
             var numSt = students.indexOf(student);
             if (numSt < 0) {
-                    numSt = students.length;
-                    students[numSt] = student;
-                }
-                if (!eventsSubscribers[eventName]) {
-                    eventsSubscribers[eventName] = {};
-                }
-                if (!eventsSubscribers[eventName][numSt]) {
-                    eventsSubscribers[eventName][numSt] = [];
-                }
-                eventsSubscribers[eventName][numSt].push(callback);
+                numSt = students.length;
+                students[numSt] = student;
+            }
+            if (!eventsSubscribers[eventName]) {
+                eventsSubscribers[eventName] = {};
+            }
+            if (!eventsSubscribers[eventName][numSt]) {
+                eventsSubscribers[eventName][numSt] = [];
+            }
+            eventsSubscribers[eventName][numSt].push(callback);
         },
 
         off: function (eventName, student) {
             var delSubscriber = function (numSt, evName) {
                 if (eventsSubscribers[evName] && eventsSubscribers[evName][numSt]) {
                     delete eventsSubscribers[evName][numSt];
-                };
-            }
+                }
+            };
             var numSt = students.indexOf(student);
             if (numSt >= 0) {
                 for (var event in eventsSubscribers) {
@@ -52,11 +52,9 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            
         },
 
         through: function (eventName, student, callback, n) {
-
         }
     };
 };

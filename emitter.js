@@ -1,17 +1,13 @@
 /**
  * @author Savi
- * Основной метод, который предоставляет интерфейс из 4х функций -
- * on - подписка на событие,
- * off - отписка от события,
- * emit - вызов события,
- * several - аналог on, но событие может наступить только n раз,
- * through - аналог on, но наступление события будет происходить каждый n-нный раз.
+ * Основной метод, который предоставляет интерфейс из 4х функций
  *
- * @return {function} on
- * @return {function} off
- * @return {function} emit
- * @return {function} several
- * @return {function} through
+ * @return {function} on - подписка на событие
+ * @return {function} off - отписка от события
+ * @return {function} emit - вызов события
+ * @return {function} several - аналог on, но событие может наступить только n раз
+ * @return {function} through - аналог on, но наступление события будет происходить каждый n-нный
+ *                              раз
  */
 module.exports = function () {
     var inf = Infinity;
@@ -21,12 +17,12 @@ module.exports = function () {
      * student - сам объект слушателя,
      * cbs - набор колбэков на те или иные события.
      *
-     * @param {string} eventName
-     * @param {object} student
-     * @param {function} callback
-     * @param {number} n
-     * @param {number} whenRep
-     * @param {number} currentCall
+     * @param {string} eventName - имя самого события
+     * @param {object} student - студент, для которого оно описывается
+     * @param {function} callback - сама функция ответа на событие
+     * @param {number} n - сколько раз событие может наступить
+     * @param {number} whenRep - через сколько вызовов событие должно наступить
+     * @param {number} currentCall - сколько раз событие уже было вызвано
      * @this {Listener}
      * @constructor
      */
@@ -35,7 +31,15 @@ module.exports = function () {
         this.student = student;
         /** @private */
         this.cbs = {};
-        this.cbs[eventName] = [callback, n, whenRep, currentCall];
+        this.cbs[eventName] = cbObj(callback, n, whenRep, currentCall);
+    }
+
+    function cbObj(cb, callsLeft, whenRep, currentCall) {
+        var cbObj = {
+            cb: cb, callsLeft: callsLeft, whenRep: whenRep,
+            currentCall: currentCall
+        };
+        return cbObj;
     }
 
     /** набор слушателей */
@@ -47,12 +51,12 @@ module.exports = function () {
      * Метод умной подписки на событие. Весь его ум в том, что он дважды не создаёт слушателя,
      * если такой уже есть.
      *
-     * @param {string} eventName
-     * @param {object} student
-     * @param {function} callback
-     * @param {number} n
-     * @param {number} whenRep
-     * @param {number} currentCall
+     * @param {string} eventName - имя самого события
+     * @param {object} student - студент, для которого оно описывается
+     * @param {function} callback - сама функция ответа на событие
+     * @param {number} n - сколько раз событие может наступить
+     * @param {number} whenRep - через сколько вызовов событие должно наступить
+     * @param {number} currentCall - сколько раз событие уже было вызвано
      */
     function smartOn(eventName, student, callback, n, whenRep, currentCall) {
         if (typeof eventName === 'string' &&
@@ -61,7 +65,7 @@ module.exports = function () {
             var index = signedStudents.indexOf(student);
             if (index > -1) {
                 /** Добавляем ещё одно событие, на которое реагирует слушатель */
-                listeners[index]['cbs'][eventName] = [callback, n, whenRep, currentCall];
+                listeners[index]['cbs'][eventName] = cbObj(callback, n, whenRep, currentCall);
             } else {
                 listeners.push(new Listener(eventName, student, callback, n, whenRep, currentCall));
                 signedStudents.push(student);
@@ -74,13 +78,32 @@ module.exports = function () {
      * Весь его ум в том, что он меняет счётчики: сколько раз уже было обработано
      * то или иное событие и сколько осталось.
      *
-     * @param {object} item
-     * @param {string} eventName
+     * @param {object} item - сам студент
+     * @param {string} eventName - имя события
      */
     function smartCall(item, eventName) {
-        item['cbs'][eventName][0].call(item['student']);
-        item['cbs'][eventName][3]++;
-        item['cbs'][eventName][1]--;
+        item['cbs'][eventName]['cb'].call(item['student']);
+        item['cbs'][eventName]['currentCall']++;
+        item['cbs'][eventName]['callsLeft']--;
+    }
+
+    /**
+     * Вспомогательная функция отписки от события, которая учитывает все уровни
+     *
+     * @param {string} eventName - имя события
+     * @param {number} indexStudent - номер студента в списке 'listeners'
+     */
+    function smartOff(eventName, indexStudent) {
+        /** Простая отписка */
+        if (eventName in listeners[indexStudent]['cbs']) {
+            delete listeners[indexStudent]['cbs'][eventName];
+        }
+        /** Проверка остальных уровней */
+        for (var cb in listeners[indexStudent]['cbs']) {
+            if (cb.indexOf(eventName) > -1) {
+                delete listeners[indexStudent]['cbs'][cb];
+            }
+        }
     }
 
     return {
@@ -91,9 +114,9 @@ module.exports = function () {
          * угодно раз -> n = inf; он срабатывает на каждый вызов -> whenRep = -1; сколько вызовов
          * было совершено -> currentCall = 0.
          *
-         * @param {string} eventName
-         * @param {object} student
-         * @param {function} callback
+         * @param {string} eventName - имя события
+         * @param {object} student - сам студент
+         * @param {function} callback - обработчик события
          */
         on: function (eventName, student, callback) {
             smartOn(eventName, student, callback, inf, -1, 0);
@@ -101,29 +124,16 @@ module.exports = function () {
 
         /**
          * Данный метод отписывает студента от определённого события.
-         * @param {string} eventName
-         * @param {object} student
+         * @param {string} eventName - имя события
+         * @param {object} student - сам студент
          */
         off: function (eventName, student) {
             if (typeof eventName === 'string' &&
-                eventName !== 'undefined' &&
+                typeof eventName !== 'undefined' &&
                 typeof student === 'object') {
                 var index = signedStudents.indexOf(student);
                 if (index > -1) {
-                    var events = eventName.split('.');
-                    /** Если событие является двухуровневым, то простая отписка */
-                    if (events.length == 2) {
-                        if (eventName in listeners[index]['cbs']) {
-                            delete listeners[index]['cbs'][eventName];
-                        }
-                    } else {
-                        /** Если же первого уровня, то мы должны учесть и все вторые */
-                        for (var cb in listeners[index]['cbs']) {
-                            if (cb.indexOf(eventName) > -1) {
-                                delete listeners[index]['cbs'][cb];
-                            }
-                        }
-                    }
+                    smartOff(eventName, index);
                 }
             }
         },
@@ -131,29 +141,32 @@ module.exports = function () {
         /**
          * Метод вызова события.
          *
-         * @param {string} eventName
+         * @param {string} eventName - имя события
          */
         emit: function extendedEmit(eventName) {
             if (typeof eventName === 'string' && eventName !== 'undefined') {
                 var events = eventName.split('.');
                 var oneMoreEv;
-                /** Если событие является двухуровневым, то стоит вызвать событие первого уровня */
-                if (events.length == 2) {
-                    oneMoreEv = events[0];
+                /** Если событие является многоуровнеевым, то стоит вызвать событие n - 1 уровня */
+                if (events.length > 1) {
+                    events.splice(events.length - 1, events.length);
+                    oneMoreEv = events.join('.');
                 }
                 /** Вызываем обработчик события для каждого студента, который подписан на него */
                 listeners.forEach(function (item) {
                     if (eventName in item['cbs']) {
                         /** Выясняем тип подписки и выполняем её, если она типа 'on' или 'through */
-                        if (!isFinite(item['cbs'][eventName][1])) {
+                        if (!isFinite(item['cbs'][eventName]['callsLeft'])) {
                             /** Тип 'through' */
-                            if (item['cbs'][eventName][2] != -1) {
+                            if (item['cbs'][eventName]['whenRep'] != -1) {
                                 /** Если настал наш черёд - вызываем */
-                                if (item['cbs'][eventName][3] % item['cbs'][eventName][2] == 0) {
+                                if ((item['cbs'][eventName]['currentCall'] != 0) &&
+                                    ((item['cbs'][eventName]['currentCall'] + 1) %
+                                    item['cbs'][eventName]['whenRep'] == 0)) {
                                     smartCall(item, eventName);
                                 } else {
                                     /** Иначе учитываем, что нас пытались вызвать */
-                                    item['cbs'][eventName][3]++;
+                                    item['cbs'][eventName]['currentCall']++;
                                 }
                             } else {
                                 /** Тип 'on' */
@@ -161,13 +174,13 @@ module.exports = function () {
                             }
                         } else {
                             /** Тип 'several'. Вызываем, если ещё имеем право */
-                            if (item['cbs'][eventName][1] > 0) {
+                            if (item['cbs'][eventName]['callsLeft'] > 0) {
                                 smartCall(item, eventName);
                             }
                         }
                     }
                 });
-                /** Вызов события первого уровня, если изначальное имело 2 уровня */
+                /** Вызов события родительского уровня */
                 extendedEmit(oneMoreEv);
             }
         },
@@ -179,13 +192,15 @@ module.exports = function () {
          * определенное количество раз -> n = n; он срабатывает на каждый вызов -> whenRep = -1;
          * сколько вызовов было совершено -> currentCall = 0.
          *
-         * @param {string} eventName
-         * @param {object} student
-         * @param {function} callback
-         * @param {number} n
+         * @param {string} eventName - имя события
+         * @param {object} student - сам студент
+         * @param {function} callback - обработчик события
+         * @param {number} n - сколько раз
          */
         several: function (eventName, student, callback, n) {
-            smartOn(eventName, student, callback, n, -1, 0);
+            if (n > 0) {
+                smartOn(eventName, student, callback, n, -1, 0);
+            }
         },
 
         /**
@@ -195,13 +210,15 @@ module.exports = function () {
          * раз -> n = inf; он срабатывает на каждый n-нный вызов -> whenRep = n;
          * сколько вызовов было совершено -> currentCall = 0.
          *
-         * @param {string} eventName
-         * @param {object} student
-         * @param {function} callback
-         * @param {number} n
+         * @param {string} eventName - имя события
+         * @param {object} student - сам студент
+         * @param {function} callback - обработчик события
+         * @param {number} n - сколько раз
          */
         through: function (eventName, student, callback, n) {
-            smartOn(eventName, student, callback, inf, n, 0);
+            if (n > 0) {
+                smartOn(eventName, student, callback, inf, n, 0);
+            }
         }
     };
 };

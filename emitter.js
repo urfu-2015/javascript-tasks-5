@@ -5,7 +5,7 @@ var isWrongArguments = function (eventName, student, callback) {
     return false;
 };
 
-var checkN = function(eventName, student, callback, n, _this) {
+var checkN = function (eventName, student, callback, n, _this) {
     if (n === undefined) {
         _this.on(eventName, student, callback);
         return false;

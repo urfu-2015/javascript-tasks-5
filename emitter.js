@@ -11,8 +11,8 @@ module.exports = function () {
             events[eventName].push({
                 student: student,
                 callback: callback,
-                launch: function () {
-                    this.callback();
+                launch: function (student) {
+                    this.callback.call(student);
                 },
             });
         },
@@ -59,9 +59,9 @@ module.exports = function () {
             events[eventName].push({
                 student: student,
                 callback: callback,
-                launch: function () {
+                launch: function (student) {
                     if (this.n > 0) {
-                        this.callback();
+                        this.callback.call(student);
                         this.n--;
                     }
                 },
@@ -74,9 +74,9 @@ module.exports = function () {
             events[eventName].push({
                 student: student,
                 callback: callback,
-                launch: function () {
+                launch: function (student) {
                     if (this.iteration % this.n === 0) {
-                        this.callback();
+                        this.callback.call(student);
                     }
                     this.iteration++;
                 },

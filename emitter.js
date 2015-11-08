@@ -1,8 +1,30 @@
+var isWrongArguments = function (eventName, student, callback) {
+    if (eventName === undefined || student === undefined || callback === undefined) {
+        return true;
+    }
+    return false;
+};
+
+var checkN = function(eventName, student, callback, n, _this) {
+    if (n === undefined) {
+        _this.on(eventName, student, callback);
+        return false;
+    }
+    if (n <= 0) {
+        _this.off(eventName, student);
+        return false;
+    }
+    if ((isWrongArguments(eventName, student, callback))) {
+        return false;
+    }
+    return true;
+};
+
 module.exports = function () {
     return {
         events: {},
         on: function (eventName, student, callback) {
-            if ((eventName === undefined) || (student === undefined) || (callback === undefined)) {
+            if ((isWrongArguments(eventName, student, callback))) {
                 return;
             }
             if (this.events[eventName] === undefined) {
@@ -11,7 +33,7 @@ module.exports = function () {
             var reaction = callback.bind(student);
             reaction.owner = student;
             this.events[eventName].push(reaction);
-            return;
+            return reaction;
         },
 
         off: function (eventName, student) {
@@ -89,34 +111,26 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            n = n || 0;
-            if ((eventName === undefined) || (student === undefined) || (callback === undefined)) {
+            var _this = this;
+            var flag = checkN(eventName, student, callback, n, _this);
+            if (!flag) {
                 return;
             }
-            if (this.events[eventName] === undefined) {
-                this.events[eventName] = [];
-            }
-            var reaction = callback.bind(student);
-            reaction.owner = student;
+            var reaction = this.on(eventName, student, callback);
             reaction.max = n;
             reaction.count = 0;
-            this.events[eventName].push(reaction);
             return;
         },
 
         through: function (eventName, student, callback, n) {
-            n = n || 1;
-            if ((eventName === undefined) || (student === undefined) || (callback === undefined)) {
+            var _this = this;
+            var flag = checkN(eventName, student, callback, n, _this);
+            if (!flag) {
                 return;
             }
-            if (this.events[eventName] === undefined) {
-                this.events[eventName] = [];
-            }
-            var reaction = callback.bind(student);
-            reaction.owner = student;
+            var reaction = this.on(eventName, student, callback);
             reaction.turn = 1;
             reaction.need = n;
-            this.events[eventName].push(reaction);
             return;
         }
     };

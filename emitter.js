@@ -1,38 +1,24 @@
 module.exports = function () {
     var events = {};
-    var _emitEvent = function (eventName) {
+    var emitEvent = function (eventName) {
         if (!events.hasOwnProperty(eventName) || events[eventName].length === 0) {
             return;
         }
         var subscribers = events[eventName];
-        for (var i = 0; i < subscribers.length; i++) {
-            var student = subscribers[i];
+        subscribers.forEach(function (student) {
             student.emitCounter++;
-            if (student.emitFrequency === 1 && student.maxEmit === Number.MAX_SAFE_INTEGER) {
-                student.callback.call(student.studentObject);
-                continue;
-            }
-            if (student.emitFrequency > 1 && (student.emitCounter % student.emitFrequency === 0)) {
-                student.callback.call(student.studentObject);
-                continue;
-            }
-            if (student.emitCounter <= student.maxEmit) {
+            if ((student.emitFrequency === 1 && student.emitCounter <= student.maxEmit) ||
+                (student.emitFrequency > 1 &&
+                (student.emitCounter % student.emitFrequency === 0))) {
                 student.callback.call(student.studentObject);
             }
-        }
+            if (student.emitCounter < student.maxEmit) {
+                this.off(eventName, student);
+            }
+        }, this);
     };
 
-    var _createSubscriber = function (student, callback, emitCounter, maxEmit, emitFrequency) {
-        return {
-            studentObject: student,
-            callback: callback,
-            emitCounter: emitCounter,
-            maxEmit: maxEmit,
-            emitFrequency: emitFrequency
-        };
-    };
-
-    var _deleteSubscriber = function (eventName, student) {
+    var deleteSubscriber = function (eventName, student) {
         var eventStudents = events[eventName];
         for (var i = eventStudents.length - 1; i >= 0; i--) {
             if (eventStudents[i].studentObject === student) {
@@ -41,19 +27,24 @@ module.exports = function () {
         }
     };
 
-    var _addSubscriber = function (eventName, student, subscriber) {
+    var addSubscriber = function (eventName, student, subscriber) {
         if (!events.hasOwnProperty(eventName)) {
             events[eventName] = [];
         }
-        if (!events[eventName].hasOwnProperty(student)) {
-            events[eventName].push(subscriber);
-        }
+        events[eventName].push(subscriber);
     };
 
     return {
-        on: function (eventName, student, callback) {
-            var subscriber = _createSubscriber(student, callback, 0, Number.MAX_SAFE_INTEGER, 1);
-            _addSubscriber(eventName, student, subscriber);
+        on: function (eventName, student, callback, maxEmit, emitFrequency) {
+            maxEmit = maxEmit || Number.MAX_SAFE_INTEGER;
+            emitFrequency = emitFrequency || 1;
+            addSubscriber(eventName, student, {
+                studentObject: student,
+                callback: callback,
+                emitCounter: 0,
+                maxEmit: maxEmit,
+                emitFrequency: emitFrequency
+            });
         },
 
         off: function (eventName, student) {
@@ -63,7 +54,7 @@ module.exports = function () {
             var eventsNames = Object.keys(events);
             for (var i = 0; i < eventsNames.length; i++) {
                 if (eventsNames[i].indexOf(eventName) === 0) {
-                    _deleteSubscriber(eventsNames[i], student);
+                    deleteSubscriber(eventsNames[i], student);
                 }
             }
         },
@@ -73,26 +64,21 @@ module.exports = function () {
             var currentEvent = '';
             for (var i = 0; i < parsedName.length; i++) {
                 currentEvent += parsedName[i];
-                _emitEvent(currentEvent);
+                emitEvent.call(this, currentEvent);
                 currentEvent += '.';
             }
         },
 
         several: function (eventName, student, callback, n) {
-            if (n <= 0) {
-                return;
+            if (n > 0) {
+                this.on(eventName, student, callback, n, 1);
             }
-            var subscriber = _createSubscriber(student, callback, 0, n, 1);
-            _addSubscriber(eventName, student, subscriber);
         },
 
         through: function (eventName, student, callback, n) {
-            if (n <= 0) {
-                return;
+            if (n > 0) {
+                this.on(eventName, student, callback, Number.MAX_SAFE_INTEGER, n);
             }
-            var subscriber = _createSubscriber(student, callback, 0, Number.MAX_SAFE_INTEGER, n);
-            _addSubscriber(eventName, student, subscriber);
         }
     };
 };
-

@@ -48,7 +48,7 @@ module.exports = function () {
                 var ev = listOfEvents[event];
                 if (events[ev] !== undefined) {
                     Object.keys(events[ev]).forEach(function (index) {
-                        events[ev][index].launch();
+                        events[ev][index].launch(events[ev][index].student);
                     });
                 }
             });

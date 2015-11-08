@@ -13,7 +13,7 @@ module.exports = function () {
                 callback: callback,
                 launch: function (student) {
                     this.callback.call(student);
-                },
+                }
             });
         },
 

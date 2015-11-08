@@ -8,10 +8,10 @@ module.exports = function () {
         }
         for (var i = 0; i < eventSubscribers.length; i++) {
             var subsriber = eventSubscribers[i];
-            if (subsriber.type !== 'always') {
+            if (subsriber.emitCounter) {
                 subsriber.emitCounter++;
             }
-            if (subsriber.type !== 'through') {
+            if (!subsriber.emitEvery) {
                 subsriber.callback.apply(subsriber.object);
             } else {
                 if (subsriber.emitCounter === subsriber.emitEvery) {
@@ -19,7 +19,7 @@ module.exports = function () {
                     subsriber.emitCounter = 0;
                 }
             }
-            if (subsriber.type === 'several' &&
+            if (subsriber.emitLimit &&
                 subsriber.emitCounter === subsriber.emitLimit
             ) {
                 unsubscribe(eventName, subsriber.object);
@@ -48,8 +48,7 @@ module.exports = function () {
         on: function (eventName, student, callback) {
             var subsriber = {
                 object: student,
-                callback: callback,
-                type: 'always'
+                callback: callback
             };
             addSubsriber(eventName, subsriber);
         },
@@ -80,7 +79,6 @@ module.exports = function () {
             var subsriber = {
                 object: student,
                 callback: callback,
-                type: 'several',
                 emitCounter: 0,
                 emitLimit: n
             };
@@ -94,7 +92,6 @@ module.exports = function () {
             var subsriber = {
                 object: student,
                 callback: callback,
-                type: 'through',
                 emitCounter: 0,
                 emitEvery: n
             };

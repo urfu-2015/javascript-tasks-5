@@ -4,8 +4,7 @@ module.exports = function () {
     var events = [];
     return {
         on: function (eventName, student, callback) {
-            events.push({eventName, student: student, callback: callback,
-                through: NaN, curent: NaN});
+            events.push({eventName, student: student, callback: callback});
         },
 
         off: function (eventName, student) {
@@ -20,34 +19,40 @@ module.exports = function () {
                     item.callback.call(item.student);
                 }
             }
-            events = events.filter(item => {
-                item.curent --;
-                if (item.curent === 0) {
-                    if (isNaN(item.through)) {
-                        return false;
-                    }
-                    item.curent = item.through;
-                    item.callback.call(item.student);
-                }
-                return true;
-            });
         },
 
         several: function (eventName, student, callback, n) {
             n = n > 0 ? n : 0;
-            events.push({eventName: eventName, student: student, callback: callback,
-                through: NaN, curent: n});
+            this.on(eventName, student, severalDecorator(eventName, student, callback, n, this));
         },
 
         through: function (eventName, student, callback, n) {
             n = n > 0 ? n : 0;
-            events.push({eventName: eventName, student: student,
-                callback: callback, through: n, curent: n});
+            this.on(eventName, student, throughDecorator(eventName, student, callback, n));
         }
     };
+    function severalDecorator(eventName, student, callback, n, emitter) {
+        return function () {
+            n--;
+            if (n >= 0) {
+                callback.call(this);
+                return;
+            }
+            emitter.off(eventName, student);
+        };
+    }
+    function throughDecorator(eventName, student, callback, n) {
+        var maxN = n;
+        return function () {
+            n--;
+            if (n === 0) {
+                n = maxN;
+                callback.call(this);
+            }
+        };
+    }
     function inNamespace(item, eventName) {
         return item.eventName.indexOf(eventName + '.') === 0 ||
-            (item.eventName.indexOf(eventName) === 0 &&
-            item.eventName.length === eventName.length);
+            item.eventName === eventName;
     }
 };

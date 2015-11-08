@@ -11,10 +11,10 @@ Emitter.prototype.on = function on(eventName, student, callback) {
 };
 
 Emitter.prototype.off = function off(eventName, student) {
-    var foundInfo = [];
-    while (foundInfo = this._findStudent(eventName, student)) {
-        this.events[foundInfo[1]].splice(foundInfo[0], 1);
-    }
+    var foundInfo = this._deepFind(eventName, student);
+    foundInfo.forEach(function (info) {
+        this.events[info[1]].splice(info[0], 1);
+    }, this);
 };
 
 Emitter.prototype.emit = function emit(eventName) {
@@ -29,7 +29,7 @@ Emitter.prototype.emit = function emit(eventName) {
                     ++item.counter;
                 }
             } else if (item.type === 'step') {
-                if (item.counter % item.n === 0) {
+                if (item.counter !== 0 && item.counter % item.n === 0) {
                     item.callback.call(item.student);
                 }
                 ++item.counter;
@@ -49,39 +49,45 @@ Emitter.prototype.through = function through(eventName, student, callback, n) {
 
 Emitter.prototype._addEvent =
     function _addEvent(eventName, student, callback, n, type) {
-        var tmpEvents = Object.keys(this.events);
-        if (tmpEvents.indexOf(eventName) < 0) {
+        if (!this.events[eventName]) {
             this.events[eventName] = [];
         }
-        if (this._findStudent(eventName, student)) {
+        if (this._find(eventName, student)) {
             console.error('Ошибка! Данный студент уже изучает эту дисциплину!');
             return;
         }
-        this.events[eventName].push(new Student(student, callback, type, n));
+        this.events[eventName].push({
+            student: student,
+            callback: callback,
+            type: type,
+            n: n,
+            counter: 0
+        });
     };
 
-Emitter.prototype._findStudent = function _findStudent(eventName, student) {
-    for (var event in this.events) {
-        if (this.events.hasOwnProperty(event)) {
-            if (event.indexOf(eventName) >= 0) {
-                if (this.events[event]) {
-                    var students = this.events[event];
-                    var length = this.events[event].length;
-                    for (var i = 0; i < length; ++i) {
-                        if (this.events[event][i].student === student) {
-                            return [i, event];
-                        }
-                    }
-                }
+Emitter.prototype._find = function _find(eventName, student) {
+    if (this.events[eventName]) {
+        var students = this.events[eventName];
+        var length = this.events[eventName].length;
+        for (var i = 0; i < length; ++i) {
+            if (this.events[eventName][i].student === student) {
+                return [i, eventName];
             }
         }
     }
 };
 
-function Student(student, callback, type, n) {
-    this.student = student;
-    this.callback = callback;
-    this.type = type;
-    this.n = n;
-    this.counter = 0;
-}
+Emitter.prototype._deepFind = function _deepFind(eventName, student) {
+    var result = [];
+    for (var event in this.events) {
+        if (this.events.hasOwnProperty(event)) {
+            if (event.indexOf(eventName) >= 0) {
+                var temp = [];
+                if (temp = this._find(event, student)) {
+                    result.push(temp);
+                }
+            }
+        }
+    }
+    return result;
+};

@@ -16,7 +16,7 @@ module.exports = function () {
                     }
                 }
                 for (var i = 0; i < events[_event].length; i++) {
-                    if (student === events[_event][i].student){
+                    if (student === events[_event][i].student) {
                         events[_event].splice(i, 1);
                         break;
                     }
@@ -39,7 +39,7 @@ module.exports = function () {
                         entry.callback.call(entry.student);
                         if (entry.repeat) {
                             if (--entry.repeat === 0) {
-                                this.off(eventName, entry.student)
+                                this.off(eventName, entry.student);
                             }
                         }
                     });

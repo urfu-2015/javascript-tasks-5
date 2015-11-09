@@ -1,14 +1,16 @@
 module.exports = function () {
-    var events = {};
+    var events = {
+        subLevels: {}
+    };
     return {
-        on: function (eventName, student, callback) {
+        on: function (eventName, context, callback) {
             eventName = getEventName(eventName);
-            addToEvent(events, eventName, student, callback);
+            addToEvent(events, eventName, context, callback);
         },
 
-        off: function (eventName, student) {
+        off: function (eventName, context) {
             eventName = getEventName(eventName);
-            removeFromEvent(events, eventName, student);
+            removeFromEvent(events, eventName, context);
         },
 
         emit: function (eventName) {
@@ -16,20 +18,21 @@ module.exports = function () {
             var curObj = events;
 
             eventName.forEach(function (item) {
-                if (curObj.hasOwnProperty(item)) {
-                    curObj = curObj[item];
-                    curObj.subscribers.forEach(function (item) {
-                        item[1].call(item[0]);
-                    });
+                if (!curObj.subLevels.hasOwnProperty(item)) {
+                    return;
                 }
+                curObj = curObj.subLevels[item];
+                curObj.subscribers.forEach(function (item) {
+                    item.handler.call(item.context);
+                });
             });
         },
 
-        several: function (eventName, student, callback, n) {
+        several: function (eventName, context, callback, n) {
 
         },
 
-        through: function (eventName, student, callback, n) {
+        through: function (eventName, context, callback, n) {
 
         }
     };
@@ -39,40 +42,43 @@ function getEventName(event) {
     return event.split('.');
 }
 
-function addToEvent(events, eventName, student, callback) {
+function addToEvent(events, eventName, context, callback) {
     var curObj = events;
 
     for (var i = 0; i < eventName.length; i++) {
+        curObj = curObj.subLevels;
         if (!curObj.hasOwnProperty(eventName[i])) {
             curObj[eventName[i]] = {
-                subscribers: []
+                subscribers: [],
+                subLevels: {}
             };
         }
         curObj = curObj[eventName[i]];
-        if (i === eventName.length - 1) {
-            curObj.subscribers.push([student, callback]);
-        }
     }
+    curObj.subscribers.push(
+        {
+            context: context,
+            handler: callback
+        }
+    );
 }
 
-function removeFromEvent(events, eventName, student) {
+function removeFromEvent(events, eventName, context) {
     var curObj = events;
 
     eventName.forEach(function (item) {
-        curObj = curObj[item];
+        curObj = curObj.subLevels[item];
     });
-    removeSubEvents(curObj, student);
+    removeSubEvents(curObj, context);
 }
 
-function removeSubEvents(event, student) {
-    Object.keys(event).forEach(function (item) {
-        if (typeof event[item] === 'object' && item !== 'subscribers') {
-            removeSubEvents(event[item], student);
-        }
+function removeSubEvents(event, context) {
+    Object.keys(event.subLevels).forEach(function (item) {
+        removeSubEvents(event.subLevels[item], context);
     });
     var clearedSubscribers = [];
     event.subscribers.forEach(function (item) {
-        if (!item[0] === student) {
+        if (!item[0] === context) {
             clearedSubscribers.push(item);
         }
     });

@@ -31,17 +31,17 @@ module.exports = function () {
             this.on(eventName, student, throughDecorator(eventName, student, callback, n));
         }
     };
-    function severalDecorator(eventName, student, callback, n, emitter) {
+    function severalDecorator(eventName, callback, n, emitter) {
         return function () {
             n--;
             if (n >= 0) {
                 callback.call(this);
                 return;
             }
-            emitter.off(eventName, student);
+            emitter.off(eventName, this);
         };
     }
-    function throughDecorator(eventName, student, callback, n) {
+    function throughDecorator(callback, n) {
         var maxN = n;
         return function () {
             n--;

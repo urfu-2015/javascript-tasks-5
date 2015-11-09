@@ -28,7 +28,7 @@ module.exports = function () {
             this.students.forEach(student => {
                 if (this.students.indexOf(student) > -1 &&
                     student.events.hasOwnProperty(listEvents[0])) {
-                student.events[listEvents[0]].apply(student);
+                    student.events[listEvents[0]].apply(student);
                 }
                 if (listEvents.length > 1 && student.events.hasOwnProperty(eventName)) {
                     student.events[eventName].apply(student);

@@ -52,19 +52,13 @@ module.exports = function () {
                         var midCount = 0;
                         for (var item in subscription.events[event_]) { // по списку ивента
                             var currentSubscript = subscription.events[event_][item];
-                            var curCount = currentSubscript.counter;
-                            if (curCount < midCount) {
-                                break;
+                            var counter = currentSubscript.counter;
+                            if (currentSubscript.max > counter &&
+                                    counter % currentSubscript.period == 0) {
+                                currentSubscript.func.apply(subscription.student);
                             }
-                            currentSubscript = subscription.events[event_][0];
-                            midCount = curCount;
+                            currentSubscript.counter++;
                         }
-                        var counter = currentSubscript.counter;
-                        if (currentSubscript.max > counter &&
-                                counter % currentSubscript.period == 0) {
-                            currentSubscript.func.apply(subscription.student);
-                        }
-                        currentSubscript.counter++;
                     }
                 }
             }

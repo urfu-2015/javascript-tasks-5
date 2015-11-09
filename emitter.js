@@ -49,20 +49,27 @@ Emitter.prototype.through = function through(eventName, student, callback, n) {
 
 Emitter.prototype._addEvent =
     function _addEvent(eventName, student, callback, n, type) {
-        if (!this.events[eventName]) {
-            this.events[eventName] = [];
+        var events = eventName.split('.');
+        eventName = '';
+        for (var i = 0; i < events.length; ++i) {
+            eventName += events[i];
+            if (!this.events[eventName]) {
+                this.events[eventName] = [];
+            }
+            if (this._find(eventName, student)) {
+                console.error('Ошибка! Данный студент уже изучает эту дисциплину!');
+                eventName += '.';
+                continue;
+            }
+            this.events[eventName].push({
+                student: student,
+                callback: callback,
+                type: type,
+                n: n,
+                counter: 0
+            });
+            eventName += '.';
         }
-        if (this._find(eventName, student)) {
-            console.error('Ошибка! Данный студент уже изучает эту дисциплину!');
-            return;
-        }
-        this.events[eventName].push({
-            student: student,
-            callback: callback,
-            type: type,
-            n: n,
-            counter: 0
-        });
     };
 
 Emitter.prototype._find = function _find(eventName, student) {

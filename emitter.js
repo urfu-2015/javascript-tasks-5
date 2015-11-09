@@ -18,7 +18,7 @@ module.exports = function () {
                         events: {}
                     }
                 );
-                subscriptions[0].events[eventName] = [events[eventName]];
+                subscriptions[subscriptions.length - 1].events[eventName] = [events[eventName]];
             } else {
                 if (!subscriptions[index].events[eventName]) {
                     subscriptions[index].events[eventName] = [];
@@ -45,12 +45,12 @@ module.exports = function () {
 
         emit: function (eventName) {
             var namespaces = getNamespaces(eventName);
-            for (var index in subscriptions) {
+            for (var index in subscriptions) { // по студентам
                 var subscription = subscriptions[index];
-                for (var event_ in subscription.events) {
-                    if (namespaces.indexOf(event_) != -1) {
+                for (var event_ in subscription.events) { // по ивентам в студентах
+                    if (namespaces.indexOf(event_) != -1) { // ищем в неймспэйсе
                         var midCount = 0;
-                        for (var item in subscription.events[event_]) {
+                        for (var item in subscription.events[event_]) { // по списку ивента
                             var currentSubscript = subscription.events[event_][item];
                             var curCount = currentSubscript.counter;
                             if (curCount < midCount) {

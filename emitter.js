@@ -27,9 +27,9 @@ module.exports = function () {
      * @constructor
      */
     function Listener(eventName, student, callback, n, whenRep, currentCall) {
-        /** @private */
+        // @private
         this.student = student;
-        /** @private */
+        // @private
         this.cbs = {};
         this.cbs[eventName] = cbObj(callback, n, whenRep, currentCall);
     }
@@ -42,9 +42,9 @@ module.exports = function () {
         return cbObj;
     }
 
-    /** набор слушателей */
+    // набор слушателей
     var listeners = [];
-    /** все студенты, которые как-то задействованы */
+    // все студенты, которые как-то задействованы
     var signedStudents = [];
 
     /**
@@ -64,7 +64,7 @@ module.exports = function () {
             typeof callback === 'function') {
             var index = signedStudents.indexOf(student);
             if (index > -1) {
-                /** Добавляем ещё одно событие, на которое реагирует слушатель */
+                // Добавляем ещё одно событие, на которое реагирует слушатель
                 listeners[index]['cbs'][eventName] = cbObj(callback, n, whenRep, currentCall);
             } else {
                 listeners.push(new Listener(eventName, student, callback, n, whenRep, currentCall));
@@ -94,11 +94,11 @@ module.exports = function () {
      * @param {number} indexStudent - номер студента в списке 'listeners'
      */
     function smartOff(eventName, indexStudent) {
-        /** Простая отписка */
+        // Простая отписка
         if (eventName in listeners[indexStudent]['cbs']) {
             delete listeners[indexStudent]['cbs'][eventName];
         }
-        /** Проверка остальных уровней */
+        // Проверка остальных уровней
         for (var cb in listeners[indexStudent]['cbs']) {
             if (cb.indexOf(eventName) > -1) {
                 delete listeners[indexStudent]['cbs'][cb];
@@ -144,43 +144,44 @@ module.exports = function () {
          * @param {string} eventName - имя события
          */
         emit: function extendedEmit(eventName) {
-            if (typeof eventName === 'string' && eventName !== 'undefined') {
+            if (typeof eventName === 'string' && typeof eventName !== 'undefined') {
                 var events = eventName.split('.');
                 var oneMoreEv;
-                /** Если событие является многоуровнеевым, то стоит вызвать событие n - 1 уровня */
+                // Если событие является многоуровнеевым, то стоит вызвать событие n - 1 уровня
                 if (events.length > 1) {
                     events.splice(events.length - 1, events.length);
                     oneMoreEv = events.join('.');
                 }
-                /** Вызываем обработчик события для каждого студента, который подписан на него */
+                // Вызываем обработчик события для каждого студента, который подписан на него
                 listeners.forEach(function (item) {
                     if (eventName in item['cbs']) {
-                        /** Выясняем тип подписки и выполняем её, если она типа 'on' или 'through */
+                        // Выясняем тип подписки и выполняем её, если она типа 'on' или 'through
                         if (!isFinite(item['cbs'][eventName]['callsLeft'])) {
-                            /** Тип 'through' */
+                            // Тип 'through'
                             if (item['cbs'][eventName]['whenRep'] != -1) {
-                                /** Если настал наш черёд - вызываем */
-                                if ((item['cbs'][eventName]['currentCall'] != 0) &&
+                                // Если настал наш черёд - вызываем
+                                if (((item['cbs'][eventName]['currentCall'] != 0) &&
                                     ((item['cbs'][eventName]['currentCall'] + 1) %
-                                    item['cbs'][eventName]['whenRep'] == 0)) {
+                                    item['cbs'][eventName]['whenRep'] == 0) ||
+                                    (item['cbs'][eventName]['whenRep'] == 1))) {
                                     smartCall(item, eventName);
                                 } else {
-                                    /** Иначе учитываем, что нас пытались вызвать */
+                                    // Иначе учитываем, что нас пытались вызвать
                                     item['cbs'][eventName]['currentCall']++;
                                 }
                             } else {
-                                /** Тип 'on' */
+                                // Тип 'on'
                                 smartCall(item, eventName);
                             }
                         } else {
-                            /** Тип 'several'. Вызываем, если ещё имеем право */
+                            // Тип 'several'. Вызываем, если ещё имеем право
                             if (item['cbs'][eventName]['callsLeft'] > 0) {
                                 smartCall(item, eventName);
                             }
                         }
                     }
                 });
-                /** Вызов события родительского уровня */
+                // Вызов события родительского уровня
                 extendedEmit(oneMoreEv);
             }
         },

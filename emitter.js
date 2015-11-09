@@ -15,17 +15,7 @@ module.exports = function () {
 
         emit: function (eventName) {
             eventName = getEventName(eventName);
-            var curObj = events;
-
-            eventName.forEach(function (item) {
-                if (!curObj.subLevels.hasOwnProperty(item)) {
-                    return;
-                }
-                curObj = curObj.subLevels[item];
-                curObj.subscribers.forEach(function (item) {
-                    item.handler.call(item.context);
-                });
-            });
+            emit(events, eventName);
         },
 
         several: function (eventName, context, callback, n) {
@@ -83,4 +73,19 @@ function removeSubEvents(event, context) {
         }
     });
     event.subscribers = clearedSubscribers;
+}
+
+function emit(event, eventName) {
+    var curObj = event.subLevels[eventName[0]];
+
+    if (!event.subLevels.hasOwnProperty(eventName[0])) {
+        return;
+    }
+    for (var i = 0; i < eventName.length - 1; i++) {
+        curObj = event.subLevels[eventName[i]];
+        emit(curObj, eventName.slice(i + 1));
+    }
+    curObj.subscribers.forEach(function (item) {
+        item.handler.call(item.context);
+    });
 }

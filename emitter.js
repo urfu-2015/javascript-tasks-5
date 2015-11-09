@@ -1,6 +1,5 @@
 module.exports = function () {
     var subscriptions = [];
-    var counter = 0;
 
     return {
         generalizedOn: function (eventName, student, callback, max, period) {
@@ -9,17 +8,22 @@ module.exports = function () {
             events[eventName] = {
                 func: callback,
                 max: max,
-                period: period
+                period: period,
+                counter: 1
             };
             if (index == -1) {
                 subscriptions.push(
                     {
                         student: student,
-                        events: events
+                        events: {}
                     }
                 );
+                subscriptions[0].events[eventName] = [events[eventName]];
             } else {
-                subscriptions[index].events[eventName] = events[eventName];
+                if (!subscriptions[index].events[eventName]) {
+                    subscriptions[index].events[eventName] = [];
+                }
+                subscriptions[index].events[eventName].push(events[eventName]);
             }
         },
 
@@ -45,11 +49,22 @@ module.exports = function () {
                 var subscription = subscriptions[index];
                 for (var event_ in subscription.events) {
                     if (namespaces.indexOf(event_) != -1) {
-                        if (subscription.events[event_].max > counter &&
-                                counter % subscription.events[event_].period == 0) {
-                            subscription.events[event_].func.apply(subscription.student);
+                        var midCount = 0;
+                        for (var item in subscription.events[event_]) {
+                            var currentSubscript = subscription.events[event_][item];
+                            var curCount = currentSubscript.counter;
+                            if (curCount < midCount) {
+                                break;
+                            }
+                            currentSubscript = subscription.events[event_][0];
+                            midCount = curCount;
                         }
-                        counter++;
+                        var counter = currentSubscript.counter;
+                        if (currentSubscript.max > counter &&
+                                counter % currentSubscript.period == 0) {
+                            currentSubscript.func.apply(subscription.student);
+                        }
+                        currentSubscript.counter++;
                     }
                 }
             }
@@ -72,14 +87,14 @@ function getIndex(subscriptions, student) {
         }
     }
     return -1;
-};
+}
 
 function getNamespaces(eventName) {
     var names = eventName.split('.');
     var namespaces = [];
     namespaces[0] = names[0];
     for (var i = 1; i < names.length; i++) {
-        namespaces[i] = namespaces[i-1] + '.' + names[i];
+        namespaces[i] = namespaces[i - 1] + '.' + names[i];
     }
     return namespaces;
 }

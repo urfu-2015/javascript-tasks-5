@@ -1,21 +1,20 @@
+var students = [];
+
 module.exports = function () {
-    var students = [];
     return {
         on: function (eventName, student, callback) {
-            var studentIndex = findStudent(students, student, 'student');
-            if (studentIndex !== null) {
-                students[studentIndex].property.push({eventName: eventName, callback: callback});
-            } else {
-                var student = {
-                    student: student, property: [{eventName: eventName, callback: callback}]
-                };
-                students.push(student);
+            var studentIndex = findStudent(student, 'student');
+            if (studentIndex === -1) {
+                studentIndex = students.push({ student: student, property: [] }) - 1;
             }
+            students[studentIndex].property.push({eventName: eventName, callback: callback});
         },
 
+
+
         off: function (eventName, student) {
-            var studentIndex = findStudent(students, student, 'student');
-            if (studentIndex !== null) {
+            var studentIndex = findStudent(student, 'student');
+            if (studentIndex > -1) {
                 var property = students[studentIndex].property;
                 var propertyIndex = findEventName(property, eventName, 'eventName');
                 if (propertyIndex.length > 0) {
@@ -52,22 +51,23 @@ module.exports = function () {
     };
 };
 
-function findStudent(array, element, field) {
-    var value = null;
-    array.forEach(function (item, i) {
-        if (item[field] === element) {
+function findStudent(element, field) {
+    var value = -1;
+    for (i = 0; i < students.length; i++) {
+        if (students[i][field] === element) {
             value = i;
+            break;
         }
-    });
+    }
     return value;
 }
 
 function findEventName(array, eventName, field) {
     var value = [];
     array.forEach(function (item, i) {
-        if (item[field].lastIndexOf(eventName, 0) > -1) {
-            value.push(i);
+        if (item[field].lastIndexOf(eventName + '.', 0) > -1 || item[field] === eventName) {
+            value.unshift(i);
         }
     });
-    return value.reverse();
+    return value;
 }

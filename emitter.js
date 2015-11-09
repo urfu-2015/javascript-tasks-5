@@ -10,8 +10,6 @@ module.exports = function () {
             students[studentIndex].property.push({eventName: eventName, callback: callback});
         },
 
-
-
         off: function (eventName, student) {
             var studentIndex = findStudent(student, 'student');
             if (studentIndex > -1) {

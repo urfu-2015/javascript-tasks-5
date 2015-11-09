@@ -3,22 +3,17 @@ var students = [];
 module.exports = function () {
     return {
         on: function (eventName, student, callback) {
-            var studentIndex = findStudent(student, 'student');
-            if (studentIndex === -1) {
-                studentIndex = students.push({ student: student, property: [] }) - 1;
-            }
-            students[studentIndex].property.push({eventName: eventName, callback: callback});
+            var student = {
+                student: student, property: {eventName: eventName, callback: callback }
+            };
+            students.push(student);
         },
 
         off: function (eventName, student) {
-            var studentIndex = findStudent(student, 'student');
-            if (studentIndex > -1) {
-                var property = students[studentIndex].property;
-                var propertyIndex = findEventName(property, eventName, 'eventName');
-                if (propertyIndex.length > 0) {
-                    for (var k = 0; k < propertyIndex.length; k++) {
-                        students[studentIndex].property.splice(propertyIndex[k], 1);
-                    }
+            var studentIndex = findStudent(student, eventName);
+            if (studentIndex.length > 0) {
+                for (var k = 0; k < studentIndex.length; k++) {
+                    students.splice(studentIndex[k], 1);
                 }
             }
         },
@@ -29,12 +24,10 @@ module.exports = function () {
                 eventNameArray[k] = eventNameArray[k - 1] + '.' + eventNameArray[k];
             }
             students.forEach(function (student, i) {
-                student.property.forEach(function (propetry, j) {
-                    eventNameArray.forEach(function (eventName) {
-                        if (propetry.eventName === eventName) {
-                            students[i].property[j].callback.call(students[i].student);
-                        }
-                    });
+                eventNameArray.forEach(function (eventName) {
+                    if (student.property.eventName === eventName) {
+                        students[i].property.callback.call(students[i].student);
+                    }
                 });
             });
         },
@@ -50,14 +43,13 @@ module.exports = function () {
 };
 
 function findStudent(element, field) {
-    var value = -1;
-    for (i = 0; i < students.length; i++) {
-        if (students[i][field] === element) {
-            value = i;
-            break;
+    return students.reduce(function (previousValue, currentItem, i) {
+        if (currentItem.student === element && (currentItem.property.eventName === field ||
+            currentItem.property.eventName.lastIndexOf(field + '.', 0) > -1)) {
+            previousValue.unshift(i);
         }
-    }
-    return value;
+        return previousValue;
+    }, [ ]);
 }
 
 function findEventName(array, eventName, field) {

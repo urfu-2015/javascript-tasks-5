@@ -77,14 +77,14 @@ function removeSubEvents(event, context) {
 
 function emit(event, eventName) {
     var curObj = event.subLevels[eventName[0]];
-
+    if (eventName.length < 1) {
+        return;
+    }
     if (!event.subLevels.hasOwnProperty(eventName[0])) {
         return;
     }
-    for (var i = 0; i < eventName.length - 1; i++) {
-        curObj = event.subLevels[eventName[i]];
-        emit(curObj, eventName.slice(i + 1));
-    }
+    curObj = event.subLevels[eventName[0]];
+    emit(curObj, eventName.slice(1));
     curObj.subscribers.forEach(function (item) {
         item.handler.call(item.context);
     });

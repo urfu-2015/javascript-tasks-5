@@ -1,23 +1,26 @@
 module.exports = function () {
     var events = {};
-    return {
-        on: function (eventName, student, callback) {
-            if (!events[eventName]) {
+    var eventInit = eventName => {
+        if (!events[eventName]) {
                 events[eventName] = [];
             }
+    };
+    return {
+        on: function (eventName, student, callback) {
+            eventInit(eventName);
             events[eventName].push({student, callback});
         },
 
         off: function (eventName, student) {
-            Object.keys(events).forEach(_event => {
+            Object.keys(events).forEach(_eventName => {
                 for (var i = 0; i < eventName.split('.').length; i++) {
-                    if (eventName.split('.')[i] !== _event.split('.')[i]) {
+                    if (eventName.split('.')[i] !== _eventName.split('.')[i]) {
                         return;
                     }
                 }
-                for (var i = 0; i < events[_event].length; i++) {
-                    if (student === events[_event][i].student) {
-                        events[_event].splice(i, 1);
+                for (var i = 0; i < events[_eventName].length; i++) {
+                    if (student === events[_eventName][i].student) {
+                        events[_eventName].splice(i, 1);
                         break;
                     }
                 }
@@ -48,17 +51,13 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            if (!events[eventName]) {
-                events[eventName] = [];
-            }
+            eventInit(eventName);
             var repeat = n;
             events[eventName].push({student, callback, repeat});
         },
 
         through: function (eventName, student, callback, n) {
-            if (!events[eventName]) {
-                events[eventName] = [];
-            }
+            eventInit(eventName);
             var regularity = n;
             var counter = 0;
             events[eventName].push({student, callback, regularity, counter});

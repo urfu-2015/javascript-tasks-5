@@ -54,8 +54,8 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            var newCallback = function(student) {
-                if (this.n > 0 ) {
+            var newCallback = function (student) {
+                if (this.n > 0) {
                     callback.call(student);
                     this.n--;
                 } else {
@@ -69,7 +69,7 @@ module.exports = function () {
             var newCallback = function(student) {
                 if (this.iteration === this.n) {
                     this.callback.call(student);
-					this.iteration = 0;
+                    this.iteration = 0;
                 }
                 this.iteration++;
             };

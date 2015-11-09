@@ -83,7 +83,6 @@ function emit(event, eventName) {
     if (!event.subLevels.hasOwnProperty(eventName[0])) {
         return;
     }
-    curObj = event.subLevels[eventName[0]];
     emit(curObj, eventName.slice(1));
     curObj.subscribers.forEach(function (item) {
         item.handler.call(item.context);

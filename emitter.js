@@ -63,11 +63,10 @@ function findStudent(element, field) {
 }
 
 function findEventName(array, eventName, field) {
-    var value = [];
-    array.forEach(function (item, i) {
-        if (item[field].lastIndexOf(eventName + '.', 0) > -1 || item[field] === eventName) {
-            value.unshift(i);
+    return array.reduce(function (previousValue, currentItem, i) {
+        if (currentItem[field].lastIndexOf(eventName, 0) > -1 || currentItem[field] === eventName) {
+            previousValue.unshift(i);
         }
-    });
-    return value;
+        return previousValue;
+    }, [ ]);
 }

@@ -9,31 +9,41 @@ module.exports = function () {
         },
 
         off: function (eventName, student) {
-            if (events[eventName]) {
-                for (var i = 0; i < events[eventName].length; i++) {
-                    if (student === events[eventName][i].student){
-                        events[eventName].splice(i, 1);
+            Object.keys(events).forEach(_event => {
+                for (var i = 0; i < eventName.split('.').length; i++) {
+                    if (eventName.split('.')[i] !== _event.split('.')[i]) {
+                        return;
+                    }
+                }
+                for (var i = 0; i < events[_event].length; i++) {
+                    if (student === events[_event][i].student){
+                        events[_event].splice(i, 1);
                         break;
                     }
                 }
-            }
+            });
         },
 
         emit: function (eventName) {
-            if (events[eventName]) {
-                events[eventName].forEach(entry => {
-                    if (entry.regularity) {
-                        if (++entry.counter % entry.regularity !== 0) {
-                            return;
+            var names = eventName.split('.');
+            while (names.length > 0) {
+                var name = names.length > 1 ? names.join('.') : names[0];
+                names.pop();
+                if (events[name]) {
+                    events[name].forEach(entry => {
+                        if (entry.regularity) {
+                            if (++entry.counter % entry.regularity !== 0) {
+                                return;
+                            }
                         }
-                    }
-                    entry.callback.call(entry.student);
-                    if (entry.repeat) {
-                        if (--entry.repeat === 0) {
-                            this.off(eventName, entry.student)
+                        entry.callback.call(entry.student);
+                        if (entry.repeat) {
+                            if (--entry.repeat === 0) {
+                                this.off(eventName, entry.student)
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         },
 

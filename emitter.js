@@ -66,7 +66,7 @@ module.exports = function () {
         },
 
         through: function (eventName, student, callback, n) {
-            var newCallback = function(student) {
+            var newCallback = function (student) {
                 if (this.iteration === this.n) {
                     this.callback.call(student);
                     this.iteration = 0;

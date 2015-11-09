@@ -6,20 +6,18 @@ function Emitter() {
     this.students = new Set();
 }
 
-Emitter.prototype.createEvent = function (eventName, student, callback, endable, n) {
-    if (!student.events) {
-        student.events = {};
-    }
-    student.events[eventName] = new Event(eventName, student, callback, endable, n);
-    this.students.add(student);
+Emitter.prototype.addEvent = function (event) {
+    event.student.events = event.student.events || {};
+    event.student.events[event.name] = event;
+    this.students.add(event.student);
 };
 
 Emitter.prototype.several = function (eventName, student, callback, n) {
-    this.createEvent(eventName, student, callback, true, n);
+    this.addEvent(new Event(eventName, student, callback, n, true));
 };
 
 Emitter.prototype.through = function (eventName, student, callback, n) {
-    this.createEvent(eventName, student, callback, false, n);
+    this.addEvent(new Event(eventName, student, callback, n, false));
 };
 
 Emitter.prototype.on = function (eventName, student, callback) {
@@ -46,23 +44,22 @@ Emitter.prototype.emit = function (eventName) {
     });
 };
 
-function Event(name, student, callback, endable, n) {
+function Event(name, student, callback, n, endable) {
     this.name = name;
     this.student = student;
     this.callback = callback;
+    this.counter = this.n = Math.max(1, n);
     this.endable = endable;
-    this.n = n;
-    this.counter = this.n;
 }
 
 Event.prototype.emit = function (emitter) {
-    this.callback.call(this.student);
-    if (--this.counter) {
-        return;
-    }
     if (this.endable) {
-        emitter.off(this.name, this.student);
-    } else {
+        this.callback.call(this.student);
+        if (!--this.counter) {
+            emitter.off(this.name, this.student);
+        }
+    } else if (!--this.counter) {
+        this.callback.call(this.student);
         this.counter = this.n;
     }
 };

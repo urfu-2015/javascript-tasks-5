@@ -1,19 +1,31 @@
 module.exports = function () {
     var events = {};
-    function chechHasEvent(eventName) {
+    function getEventStoradge(eventName) {
         if (!events.hasOwnProperty(eventName)) {
             events[eventName] = [];
         }
+        return events[eventName];
+    }
+    function createListOfEvents(eventName) {
+        var name = '';
+        var listOfEvents = [];
+        for (var event of eventName.split('.')) {
+            if (name !== '') {
+                name += '.' + event;
+            } else {
+                name = event;
+            }
+            listOfEvents.push(name);
+        }
+        return listOfEvents;
     }
     return {
-        on: function (eventName, student, callback) {
-            chechHasEvent(eventName);
+        on: function (eventName, student, callback, iteration) {
+            events[eventName] = getEventStoradge(eventName);
             events[eventName].push({
                 student: student,
                 callback: callback,
-                launch: function (student) {
-                    this.callback.call(student);
-                }
+                iteration: iteration
             });
         },
 
@@ -30,59 +42,38 @@ module.exports = function () {
         },
 
         emit: function (eventName) {
-            function createListOfEvents() {
-                var name = '';
-                var listOfEvents = [];
-                for (var event of eventName.split('.')) {
-                    if (name !== '') {
-                        name += '.' + event;
-                    } else {
-                        name = event;
-                    }
-                    listOfEvents.push(name);
-                }
-                return listOfEvents;
-            }
-            var listOfEvents = createListOfEvents();
+            var listOfEvents = createListOfEvents(eventName);
             Object.keys(listOfEvents.reverse()).forEach(function (event) {
                 var ev = listOfEvents[event];
                 if (events[ev] !== undefined) {
                     Object.keys(events[ev]).forEach(function (index) {
-                        events[ev][index].launch(events[ev][index].student);
+                        events[ev][index].callback.call(events[ev][index].student);
                     });
                 }
             });
         },
 
         several: function (eventName, student, callback, n) {
-            chechHasEvent(eventName);
-            events[eventName].push({
-                student: student,
-                callback: callback,
-                launch: function (student) {
-                    if (this.n > 0) {
-                        this.callback.call(student);
-                        this.n--;
-                    }
-                },
-                n: n
-            });
+            var newCallback = function(student) {
+                if (this.n > 0 ) {
+                    callback.call(student);
+                    this.n--;
+                } else {
+                    this.off(eventName, student);
+                }
+            };
+            this.on(eventName, student, newCallback);
         },
 
         through: function (eventName, student, callback, n) {
-            chechHasEvent(eventName);
-            events[eventName].push({
-                student: student,
-                callback: callback,
-                launch: function (student) {
-                    if (this.iteration % this.n === 0) {
-                        this.callback.call(student);
-                    }
-                    this.iteration++;
-                },
-                n: n,
-                iteration: 1
-            });
+            var newCallback = function(student) {
+                if (this.iteration === this.n) {
+                    this.callback.call(student);
+					this.iteration = 0;
+                }
+                this.iteration++;
+            };
+            this.on(eventName, student, newCallback, 1);
         }
     };
 };

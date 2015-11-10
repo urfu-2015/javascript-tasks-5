@@ -106,28 +106,27 @@ module.exports = function () {
                     // Смотрим, заданы ли параметры
                     if (student['every'] > 0) {
                         if (eventsStatus[eventName]['count'] % student['every'] === 0) {
-                            student['callback'].apply(subscribedStudents[student['id']]);
+                            student.callback.apply(subscribedStudents[student['id']]);
                         }
                     }
                     if (student['several'] > 0) {
-                        student['callback'].apply(subscribedStudents[student['id']]);
+                        student.callback.apply(subscribedStudents[student['id']]);
                         student['several']--;
                     } else if (student['several'] === 0) {
-                        // TODO Почему здесь this становится global ?
                         this.off(eventName, subscribedStudents[student['id']]);
                     }
                     if (student['several'] < 0 && student['every'] < 0) {
-                        student['callback'].apply(subscribedStudents[student['id']]);
+                        student.callback.apply(subscribedStudents[student['id']]);
                     }
                 }, this);
             } else {
                 // Вызываем само событие
                 eventsInfo[eventNames[0]][eventNames[1]].forEach(function (student, index, array) {
-                    student['callback'].apply(subscribedStudents[student['id']]);
+                    student.callback.apply(subscribedStudents[student['id']]);
                 });
                 // Вызываем его родителя
                 eventsInfo[eventNames[0]][eventNames[0]].forEach(function (student, index, array) {
-                    student['callback'].apply(subscribedStudents[student['id']]);
+                    student.callback.apply(subscribedStudents[student['id']]);
                 });
             }
             // Записываем состояния исполнения

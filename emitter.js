@@ -25,9 +25,10 @@ module.exports = function () {
             if (eventNames.length === 1) {
                 eventNames.push(eventNames[0]);
             }
-            // Если события первого уровня нет
+            // Если события первого уровня нет, добавим его
             if (!eventsInfo[eventNames[0]]) {
                 eventsInfo[eventNames[0]] = {};
+                eventsInfo[eventNames[0]][eventNames[0]] = [];
             }
 
             // Если нет события второго уровня
@@ -123,11 +124,11 @@ module.exports = function () {
                 // Вызываем само событие
                 eventsInfo[eventNames[0]][eventNames[1]].forEach(function (student, index, array) {
                     student.callback.apply(subscribedStudents[student['id']]);
-                });
+                }, this);
                 // Вызываем его родителя
                 eventsInfo[eventNames[0]][eventNames[0]].forEach(function (student, index, array) {
                     student.callback.apply(subscribedStudents[student['id']]);
-                });
+                }, this);
             }
             // Записываем состояния исполнения
             eventsStatus[eventName]['count']++;

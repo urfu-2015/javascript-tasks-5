@@ -152,6 +152,7 @@ module.exports = function () {
             // Если события первого уровня нет
             if (!eventsInfo[eventNames[0]]) {
                 eventsInfo[eventNames[0]] = {};
+                eventsInfo[eventNames[0]][eventNames[0]] = [];
             }
 
             // Если нет события второго уровня
@@ -191,6 +192,7 @@ module.exports = function () {
             // Если события первого уровня нет
             if (!eventsInfo[eventNames[0]]) {
                 eventsInfo[eventNames[0]] = {};
+                eventsInfo[eventNames[0]][eventNames[0]] = [];
             }
 
             // Если нет события второго уровня

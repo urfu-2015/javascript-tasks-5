@@ -1,41 +1,48 @@
 module.exports = function () {
     var events = [];
     return {
-        on: function (eventName, student, callback) {
-            events.push({name: eventName, student: student, callback: callback});
+        on: function (eventName, person, callback) {
+            var event = {
+                person: person,
+                callback: callback
+            };
+            if (events[eventName] === undefined) {
+                events[eventName] = [];
+            }
+            events[eventName].push(event);
         },
 
-        off: function (eventName, student) {
-            var changeEvents = [];
-            events.forEach(function (event) {
-                var index = event.name.indexOf(eventName);
-                if (index === -1) {
-                    changeEvents.push(event);
+        off: function (eventName, person) {
+            Object.keys(events).forEach(function (key) {
+                if (key.indexOf(eventName) !== -1) {
+                    var changeEvents = events[key].filter(function (event) {
+                        return event.person !== person;
+                    });
+                    events[key] = changeEvents;
                 }
             });
-            events = changeEvents;
         },
 
         emit: function (eventName) {
-            var namespace = [];
-            namespace.push(eventName);
+            var namespace = [eventName];
             while (true) {
                 var dote = eventName.lastIndexOf('.');
                 if (dote !== -1) {
                     eventName = eventName.slice(0, dote);
                     namespace.push(eventName);
+                } else {
+                    break;
                 }
-                break;
             }
-            events.forEach(function (event) {
-                namespace.forEach(function (name) {
-                    if (event.name === name) {
-                        event.callback.call(event.student);
-                    }
-                });
+            namespace.forEach(function (name) {
+                if (events[name] !== undefined) {
+                    events[name].forEach(function (event) {
+                        event.callback.call(event.person);
+                    });
+                }
             });
         },
-        // Сделаю позже
+
         several: function (eventName, student, callback, n) {},
 
         through: function (eventName, student, callback, n) {}

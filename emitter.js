@@ -57,7 +57,7 @@ module.exports = function () {
             var namespace;
             namespaces[namespaceString] = namespaces[namespaceString] || EmitterNamespace();
             namespaces[namespaceString].through(event, student, callback, n);
-        },
+        }
     };
 };
 

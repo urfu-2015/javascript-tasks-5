@@ -1,59 +1,63 @@
 var NAMESPACE_REGEX = /(.*?)\.(.*)/;
 
 module.exports = function () {
-    var globalNamespace = EmitterNamespace();
     var namespaces = {};
-    var __getEventAndNamespace = function (combinedString) {
-        var match = NAMESPACE_REGEX.exec(combinedString);
-        if (match === null) {
-            return [combinedString, null];
-        }
-        return [match[1], match[2]];
-    };
-    var __makeActionOnNamespace = function (combinedEventString, action, args) {
-        var eventAndNamespace = __getEventAndNamespace(combinedEventString);
-        var namespace;
-        if (eventAndNamespace[1] == null) {
-            namespace = globalNamespace;
-        } else {
-            if (namespaces[eventAndNamespace[1]] === undefined) {
-                namespaces[eventAndNamespace[1]] = EmitterNamespace();
-            }
-            namespace = namespaces[eventAndNamespace[1]];
-        }
-        args[0] = eventAndNamespace[0];
-        namespace[action].apply(namespace, args);
-    };
     return {
-        on: function (combinedEventString) {
-            __makeActionOnNamespace(combinedEventString, 'on', [].slice.call(arguments));
+        on: function (eventAndNamespace, student, callback) {
+            var eventAndNamespaceSplitted = eventAndNamespace.split('.');
+            var event = eventAndNamespaceSplitted[0];
+            var namespaceString = eventAndNamespaceSplitted.slice(1).join('.');
+            var namespace;
+            namespaces[namespaceString] = namespaces[namespaceString] || EmitterNamespace();
+            namespaces[namespaceString].on(event, student, callback);
         },
-        off: function (combinedEventString, student) {
-            var eventAndNamespace = __getEventAndNamespace(combinedEventString);
-            if (eventAndNamespace[1] !== null) {
-                if (namespaces[eventAndNamespace[1]] !== undefined) {
-                    namespaces[eventAndNamespace[1]].off(eventAndNamespace[0], student);
-                }
-                return;
+        off: function (eventAndNamespace, student) {
+            var eventAndNamespaceSplitted = eventAndNamespace.split('.');
+            var event = eventAndNamespaceSplitted[0];
+            var namespaceString = eventAndNamespaceSplitted.slice(1).join('.');
+            var matchedNamespaces;
+            if (namespaceString == '') {
+                matchedNamespaces = Object.keys(namespaces);
+            } else {
+                matchedNamespaces = Object.keys(namespaces).filter(function (emitterNamespace) {
+                    return emitterNamespace.indexOf(namespaceString) == 0 &&
+                    (emitterNamespace.length == namespaceString.length ||
+                    emitterNamespace.charAt(namespaceString.length) == '.');
+                });
             }
-            globalNamespace.off(eventAndNamespace[0], student);
-            Object.keys(namespaces).forEach(function (namespaceName) {
-                namespaces[namespaceName].off(eventAndNamespace[0], student);
+            matchedNamespaces.forEach(function (key) {
+                namespaces[key].off(event, student);
             });
         },
-        several: function (combinedEventString) {
-            __makeActionOnNamespace(combinedEventString, 'several', [].slice.call(arguments));
+        emit: function (eventAndNamespace) {
+            var eventAndNamespaceSplitted = eventAndNamespace.split('.');
+            var event = eventAndNamespaceSplitted[0];
+            var namespaceString = eventAndNamespaceSplitted.slice(1).join('.');
+            Object.keys(namespaces).filter(function (emitterNamespace) {
+                return namespaceString.indexOf(emitterNamespace) == 0 &&
+                (emitterNamespace.length == namespaceString.length ||
+                namespaceString.charAt(emitterNamespace.length) == '.' ||
+                emitterNamespace.length == 0);
+            }).forEach(function (key) {
+                namespaces[key].emit(event);
+            });
         },
-        through: function (combinedEventString) {
-            __makeActionOnNamespace(combinedEventString, 'through', [].slice.call(arguments));
+        several: function (eventAndNamespace, student, callback, n) {
+            var eventAndNamespaceSplitted = eventAndNamespace.split('.');
+            var event = eventAndNamespaceSplitted[0];
+            var namespaceString = eventAndNamespaceSplitted.slice(1).join('.');
+            var namespace;
+            namespaces[namespaceString] = namespaces[namespaceString] || EmitterNamespace();
+            namespaces[namespaceString].several(event, student, callback, n);
         },
-        emit: function (eventName) {
-            var eventAndNamespace = __getEventAndNamespace(eventName);
-            globalNamespace.emit(eventAndNamespace[0]);
-            if (eventAndNamespace[1] !== null && namespaces[eventAndNamespace[1]] !== undefined) {
-                namespaces[eventAndNamespace[1]].emit(eventAndNamespace[0]);
-            }
-        }
+        through: function (eventAndNamespace, student, callback, n) {
+            var eventAndNamespaceSplitted = eventAndNamespace.split('.');
+            var event = eventAndNamespaceSplitted[0];
+            var namespaceString = eventAndNamespaceSplitted.slice(1).join('.');
+            var namespace;
+            namespaces[namespaceString] = namespaces[namespaceString] || EmitterNamespace();
+            namespaces[namespaceString].through(event, student, callback, n);
+        },
     };
 };
 

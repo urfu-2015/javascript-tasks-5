@@ -16,6 +16,8 @@ lecturer.on('slide.funny', daria, function () {
     console.log('Новый смешной слайд!');
 });
 
+// lecturer.off('slide', daria);
+
 lecturer.emit('slide'); // 'Новый слайд!'
-lecturer.emit('slide.funny'); // 'Новый смешной слайд!'
+lecturer.emit('slide.funny.cat'); // 'Новый смешной слайд!'
 lecturer.emit('slide.text'); // 'Новый

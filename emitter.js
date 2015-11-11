@@ -1,3 +1,4 @@
+
 module.exports = function () {
     var events = {};
     var eventInit = eventName => {
@@ -6,12 +7,12 @@ module.exports = function () {
         }
     };
     return {
-        on: (eventName, student, callback) => {
+        on: function (eventName, student, callback) {
             eventInit(eventName);
             events[eventName].push({student, callback});
         },
 
-        off: (eventName, student) => {
+        off: function (eventName, student) {
             Object.keys(events).forEach(_eventName => {
                 for (var i = 0; i < eventName.split('.').length; i++) {
                     if (eventName.split('.')[i] !== _eventName.split('.')[i]) {
@@ -27,7 +28,7 @@ module.exports = function () {
             });
         },
 
-        emit: (eventName) => {
+        emit: function (eventName) {
             var names = eventName.split('.');
             while (names.length > 0) {
                 var name = names.length > 1 ? names.join('.') : names[0];
@@ -50,7 +51,7 @@ module.exports = function () {
             }
         },
 
-        several: (eventName, student, callback, n) => {
+        several: function (eventName, student, callback, n) {
             eventInit(eventName);
             var repeat = n;
             events[eventName].push({student, callback, repeat});

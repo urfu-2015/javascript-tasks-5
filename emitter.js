@@ -6,16 +6,8 @@ module.exports = function () {
         }
         var subscribers = events[eventName];
         subscribers.forEach(function (student) {
-            student.emitCounter++;
-            if ((student.emitFrequency === 1 && student.emitCounter <= student.maxEmit) ||
-                (student.emitFrequency > 1 &&
-                (student.emitCounter % student.emitFrequency === 0))) {
-                student.callback.call(student.studentObject);
-            }
-            if (student.emitCounter < student.maxEmit) {
-                this.off(eventName, student);
-            }
-        }, this);
+            student.callback.call(student.studentObject);
+        });
     };
 
     var deleteSubscriber = function (eventName, student) {
@@ -35,15 +27,10 @@ module.exports = function () {
     };
 
     return {
-        on: function (eventName, student, callback, maxEmit, emitFrequency) {
-            maxEmit = maxEmit || Number.MAX_SAFE_INTEGER;
-            emitFrequency = emitFrequency || 1;
+        on: function (eventName, student, callback) {
             addSubscriber(eventName, student, {
                 studentObject: student,
-                callback: callback,
-                emitCounter: 0,
-                maxEmit: maxEmit,
-                emitFrequency: emitFrequency
+                callback: callback
             });
         },
 
@@ -70,15 +57,26 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            if (n > 0) {
-                this.on(eventName, student, callback, n, 1);
-            }
+            var severalCallback = function () {
+                if (n > 0) {
+                    callback.call(student);
+                    n--;
+                } else {
+                    deleteSubscriber(eventName, student);
+                }
+            };
+            this.on(eventName, student, severalCallback);
         },
 
         through: function (eventName, student, callback, n) {
-            if (n > 0) {
-                this.on(eventName, student, callback, Number.MAX_SAFE_INTEGER, n);
-            }
+            var emitCounter = 0;
+            var throughCallback = function () {
+                emitCounter++;
+                if (emitCounter % n === 0) {
+                    callback.call(student);
+                }
+            };
+            this.on(eventName, student, throughCallback);
         }
     };
 };

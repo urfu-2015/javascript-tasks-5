@@ -1,54 +1,35 @@
 module.exports = function () {
-    var events = {};
     return {
+        events: {},
         on: function (eventName, person, callback) {
             var event = {
                 person: person,
                 callback: callback
             };
-            if (!events.hasOwnProperty(eventName)) {
-                events[eventName] = [];
-            }
-            events[eventName].push(event);
+            addEvent(this.events, eventName, event);
         },
 
         off: function (eventName, person) {
             if (eventName === '') {
                 return false;
             }
-            Object.keys(events).forEach(function (key) {
+            var _this = this.events;
+            Object.keys(_this).forEach(function (key) {
+                console.log(this.events);
                 if (key.indexOf(eventName) !== -1) {
-                    var changeEvents = events[key].filter(function (event) {
+                    var changeEvents = _this[key].filter(function (event) {
                         return event.person !== person;
                     });
-                    events[key] = changeEvents;
+                    _this[key] = changeEvents;
                 }
             });
+
+            this.events = _this;
         },
 
         emit: function (eventName) {
             var namespace = getNamespace(eventName);
-            namespace.forEach(function (name) {
-                if (events.hasOwnProperty(name)) {
-                    events[name].forEach(function (event) {
-                        if (event.hasOwnProperty('several') && event.several > 0) {
-                            event.callback.call(event.person);
-                            --event.several;
-                        }
-                        if (event.hasOwnProperty('through') &&
-                            event.current % event.through === 0) {
-                            event.callback.call(event.person);
-                            ++event.current;
-                        } else {
-                            ++event.current;
-                        }
-                        if (!event.hasOwnProperty('several') &&
-                            !event.hasOwnProperty('through')) {
-                            event.callback.call(event.person);
-                        }
-                    });
-                }
-            });
+            emitEvents(this.events, namespace);
         },
 
         several: function (eventName, person, callback, n) {
@@ -57,10 +38,7 @@ module.exports = function () {
                 callback: callback,
                 several: n
             };
-            if (!events.hasOwnProperty(eventName)) {
-                events[eventName] = [];
-            }
-            events[eventName].push(event);
+            addEvent(this.events, eventName, event);
         },
 
         through: function (eventName, person, callback, n) {
@@ -70,13 +48,41 @@ module.exports = function () {
                 through: n,
                 current: 1
             };
-            if (!events.hasOwnProperty(eventName)) {
-                events[eventName] = [];
-            }
-            events[eventName].push(event);
+            addEvent(this.events, eventName, event);
         }
     };
 };
+
+function emitEvents(eventsList, namespace) {
+    namespace.forEach(function (name) {
+        if (eventsList.hasOwnProperty(name)) {
+            eventsList[name].forEach(function (event) {
+                var isSeveral = event.hasOwnProperty('several');
+                var isThrough = event.hasOwnProperty('through');
+                if (isSeveral && event.several > 0) {
+                    event.callback.call(event.person);
+                    --event.several;
+                }
+                if (isThrough) {
+                    if (event.current % event.through === 0) {
+                        event.callback.call(event.person);
+                    }
+                    ++event.current;
+                }
+                if (!isSeveral && !isThrough) {
+                    event.callback.call(event.person);
+                }
+            });
+        }
+    });
+}
+
+function addEvent(eventsList, eventName, event) {
+    if (!eventsList.hasOwnProperty(eventName)) {
+        eventsList[eventName] = [];
+    }
+    eventsList[eventName].push(event);
+}
 
 function getNamespace(name) {
     var namespace = [name];

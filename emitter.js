@@ -5,13 +5,13 @@ var isWrongArguments = function (eventName, student, callback) {
     return false;
 };
 
-var checkN = function (eventName, student, callback, n, _this) {
+var checkN = function (eventName, student, callback, n) {
     if (n === undefined) {
-        _this.on(eventName, student, callback);
+        this.on(eventName, student, callback);
         return false;
     }
     if (n <= 0) {
-        _this.off(eventName, student);
+        this.off(eventName, student);
         return false;
     }
     if ((isWrongArguments(eventName, student, callback))) {
@@ -90,6 +90,11 @@ module.exports = function () {
                     }
                     if (cb.max) {
                         if (cb.max === cb.count) {
+                            // Удаления реакции на событие если произшло max раз для several
+                            var reactionIndex = this.events[eventName].indexOf(cb);
+                            if (reactionIndex > -1) {
+                                this.events[eventName].splice(reactionIndex, 1);
+                            }
                             return;
                         }
                         cb();
@@ -105,14 +110,13 @@ module.exports = function () {
                         cb.turn += 1;
                         return;
                     }
-                });
+                }, this);
             }, this);
             return;
         },
 
         several: function (eventName, student, callback, n) {
-            var _this = this;
-            var flag = checkN(eventName, student, callback, n, _this);
+            var flag = checkN.apply(this, arguments);
             if (!flag) {
                 return;
             }
@@ -123,8 +127,7 @@ module.exports = function () {
         },
 
         through: function (eventName, student, callback, n) {
-            var _this = this;
-            var flag = checkN(eventName, student, callback, n, _this);
+            var flag = checkN.apply(this, arguments);
             if (!flag) {
                 return;
             }

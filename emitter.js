@@ -40,7 +40,7 @@ module.exports = function () {
         return {
             eventNames: eventNames,
             studentIndex: studentIndex
-        }
+        };
     };
     return {
         on: function (eventName, student, callback) {

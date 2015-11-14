@@ -5,37 +5,48 @@ module.exports = function () {
     var eventsInfo = {};
     // Состояния вызовов событий
     var eventsStatus = {};
-    var subscribe = function (eventName, student, callback) {
-        // TODO вынести сюда общий код из on, several, through
+    var prepareForSubscribe = function (eventName, student) {
+        var studentIndex;
+        // Если студента нет - добавим
+        if (subscribedStudents.indexOf(student) < 0) {
+            subscribedStudents.push(student);
+            studentIndex = subscribedStudents.length - 1;
+        } else {
+            studentIndex = subscribedStudents.indexOf(student);
+        }
+
+        var eventNames = eventName.split('.');
+
+        // Превращаем событие begin -> begin.begin для однородности
+        if (eventNames.length === 1) {
+            eventNames.push(eventNames[0]);
+        }
+        // Если события первого уровня нет, добавим его
+        if (!eventsInfo[eventNames[0]]) {
+            eventsInfo[eventNames[0]] = {};
+            eventsInfo[eventNames[0]][eventNames[0]] = [];
+        }
+
+        // Если нет события второго уровня
+        if (!eventsInfo[eventNames[0]][eventNames[1]]) {
+            eventsInfo[eventNames[0]][eventNames[1]] = [];
+        }
+
+        // Добавим структуру для посчета исполнений события
+        if (!eventsStatus[eventName]) {
+            eventsStatus[eventName] = {count: 0};
+        }
+
+        return {
+            eventNames: eventNames,
+            studentIndex: studentIndex
+        }
     };
     return {
         on: function (eventName, student, callback) {
-            var studentIndex;
-            // Если студента нет - добавим
-            if (subscribedStudents.indexOf(student) < 0) {
-                subscribedStudents.push(student);
-                studentIndex = subscribedStudents.length - 1;
-            } else {
-                studentIndex = subscribedStudents.indexOf(student);
-            }
-
-            var eventNames = eventName.split('.');
-
-            // Превращаем событие begin -> begin.begin для однородности
-            if (eventNames.length === 1) {
-                eventNames.push(eventNames[0]);
-            }
-            // Если события первого уровня нет, добавим его
-            if (!eventsInfo[eventNames[0]]) {
-                eventsInfo[eventNames[0]] = {};
-                eventsInfo[eventNames[0]][eventNames[0]] = [];
-            }
-
-            // Если нет события второго уровня
-            if (!eventsInfo[eventNames[0]][eventNames[1]]) {
-                eventsInfo[eventNames[0]][eventNames[1]] = [];
-            }
-
+            var subData = prepareForSubscribe(eventName, student);
+            var eventNames = subData['eventNames'];
+            var studentIndex = subData['studentIndex'];
             // Добавим данные для события
             // Пример begin -> begin -> [{данные}, ...]
             eventsInfo[eventNames[0]][eventNames[1]].push({
@@ -43,11 +54,6 @@ module.exports = function () {
                 callback: callback,
                 every: -1,
                 several: -1});
-
-            // Добавим структуру для посчета исполнений события
-            if (!eventsStatus[eventName]) {
-                eventsStatus[eventName] = {count: 0};
-            }
         },
 
         off: function (eventName, student) {
@@ -135,31 +141,9 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
-            // Если студента нет - добавим
-            if (subscribedStudents.indexOf(student) < 0) {
-                subscribedStudents.push(student);
-                studentIndex = subscribedStudents.length - 1;
-            } else {
-                studentIndex = subscribedStudents.indexOf(student);
-            }
-
-            var eventNames = eventName.split('.');
-
-            // Превращаем событие begin -> begin.begin для однородности
-            if (eventNames.length === 1) {
-                eventNames.push(eventNames[0]);
-            }
-            // Если события первого уровня нет
-            if (!eventsInfo[eventNames[0]]) {
-                eventsInfo[eventNames[0]] = {};
-                eventsInfo[eventNames[0]][eventNames[0]] = [];
-            }
-
-            // Если нет события второго уровня
-            if (!eventsInfo[eventNames[0]][eventNames[1]]) {
-                eventsInfo[eventNames[0]][eventNames[1]] = [];
-            }
-
+            var subData = prepareForSubscribe(eventName, student);
+            var eventNames = subData['eventNames'];
+            var studentIndex = subData['studentIndex'];
             // Добавим данные для события
             // Пример begin -> begin -> [{данные}, ...]
             eventsInfo[eventNames[0]][eventNames[1]].push({
@@ -167,39 +151,12 @@ module.exports = function () {
                 callback: callback,
                 every: -1,
                 several: n});
-
-            // Добавим структуру для посчета исполнений события
-            if (!eventsStatus[eventName]) {
-                eventsStatus[eventName] = {count: 0};
-            }
         },
 
         through: function (eventName, student, callback, n) {
-            // Если студента нет - добавим
-            if (subscribedStudents.indexOf(student) < 0) {
-                subscribedStudents.push(student);
-                studentIndex = subscribedStudents.length - 1;
-            } else {
-                studentIndex = subscribedStudents.indexOf(student);
-            }
-
-            var eventNames = eventName.split('.');
-
-            // Превращаем событие begin -> begin.begin для однородности
-            if (eventNames.length === 1) {
-                eventNames.push(eventNames[0]);
-            }
-            // Если события первого уровня нет
-            if (!eventsInfo[eventNames[0]]) {
-                eventsInfo[eventNames[0]] = {};
-                eventsInfo[eventNames[0]][eventNames[0]] = [];
-            }
-
-            // Если нет события второго уровня
-            if (!eventsInfo[eventNames[0]][eventNames[1]]) {
-                eventsInfo[eventNames[0]][eventNames[1]] = [];
-            }
-
+            var subData = prepareForSubscribe(eventName, student);
+            var eventNames = subData['eventNames'];
+            var studentIndex = subData['studentIndex'];
             // Добавим данные для события
             // Пример begin -> begin -> [{данные}, ...]
             eventsInfo[eventNames[0]][eventNames[1]].push({
@@ -207,11 +164,6 @@ module.exports = function () {
                 callback: callback,
                 every: n,
                 several: -1});
-
-            // Добавим структуру для посчета исполнений события
-            if (!eventsStatus[eventName]) {
-                eventsStatus[eventName] = {count: 0};
-            }
         }
     };
 };

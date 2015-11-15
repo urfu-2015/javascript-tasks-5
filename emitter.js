@@ -3,7 +3,7 @@ module.exports = function () {
         students: [],
         on: function (eventName, student, callback) {
             var k = 0;
-            var arg = eventName.split(".");
+            var arg = eventName.split('.');
             var next;
             var ok = false;
             var i = 0;
@@ -20,7 +20,7 @@ module.exports = function () {
             while (k < arg.length - 1) {
                 for (i = 0; i < next.length; i++) {
                     if (next[i].eventName === arg[k]) {
-                        if (!next[i].hasOwnProperty("nextEv")) {
+                        if (!next[i].hasOwnProperty('nextEv')) {
                             next[i].nextEv = [{
                                 eventName: arg[k + 1]
                             }];
@@ -43,7 +43,7 @@ module.exports = function () {
             }
             ok = false;
             for (i = 0; i < next.length; i ++) {
-                if (next[i].eventName === arg[k] && !next[i].hasOwnProperty("callback")) {
+                if (next[i].eventName === arg[k] && !next[i].hasOwnProperty('callback')) {
                     next[i].callback = callback;
                     ok = true;
                     break;
@@ -53,13 +53,13 @@ module.exports = function () {
                 next.push({
                     eventName: arg[k],
                     callback: callback
-                })
+                });
             }
         },
 
         off: function (eventName, student) {
             var k = 0;
-            var arg = eventName.split(".");
+            var arg = eventName.split('.');
             var next = findStudent(this.students, student);
             var c_next;
             if (next != undefined) {
@@ -70,7 +70,7 @@ module.exports = function () {
                             if (k === arg.length - 1) {
                                 delete ev.callback;
                                 delete ev.nextEv;
-                            } else if (ev.hasOwnProperty("nextEv")) {
+                            } else if (ev.hasOwnProperty('nextEv')) {
                                 c_next = c_next.concat(ev.nextEv);
                             }
                         }
@@ -83,7 +83,7 @@ module.exports = function () {
 
         emit: function (eventName) {
             var k;
-            var arg = eventName.split(".");
+            var arg = eventName.split('.');
             var next;
             var c_next;
             this.students.forEach(function (st) {
@@ -93,11 +93,10 @@ module.exports = function () {
                     c_next = [];
                     next.forEach(function (ev) {
                         if (ev.eventName === arg[k]) {
-                            //console.log(ev);
-                            if (ev.hasOwnProperty("callback")) {
+                            if (ev.hasOwnProperty('callback')) {
                                 ev.callback.apply(st.character);
                             }
-                            if (ev.hasOwnProperty("nextEv")) {
+                            if (ev.hasOwnProperty('nextEv')) {
                                 c_next = c_next.concat(ev.nextEv);
                             }
                         }

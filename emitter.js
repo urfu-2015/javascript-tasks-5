@@ -104,7 +104,7 @@ module.exports = function () {
                     next = c_next;
                     k += 1;
                 }
-            })
+            });
         },
 
         several: function (eventName, student, callback, n) {

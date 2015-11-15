@@ -5,7 +5,7 @@ module.exports = function () {
             subscriptions.push({
                 target: student,
                 event: eventName,
-                callBack: callback
+                callback: callback
             });
         },
         off: function (eventName, student) {
@@ -18,12 +18,18 @@ module.exports = function () {
             }
         },
         emit: function (eventName) {
-            var eventFstLvl = eventName.split('.')[0];
-            var eventSndLvl = eventName.split('.')[1];
+            // var listEvent = eventName.split('.');
+            // for (var i = 1; i < listEvent.length; i++){
+                var listEvent = eventName.split('.');
+                var oneEvent = listEvent[0];
+                for (var i = 0; i < listEvent.length; i++) {
+                    if (i > 0) {
+                        oneEvent += '.' + listEvent[i];
+                    }
             subscriptions.forEach(function (student, index) {
                 if (student.typeOfEvent === 'several' && student.event === eventName) {
                     if (student.currentCount < student.count) {
-                        student.callBack.call(student.target);
+                        student.callback.call(student.target);
                         student.currentCount++;
                     } else {
                         subscriptions.splice(index, 1);
@@ -31,22 +37,23 @@ module.exports = function () {
                 };
                 if (student.typeOfEvent === 'through' && student.event === eventName) {
                     if (student.currentStep % student.step === 0) {
-                        student.callBack.call(student.target);
+                        student.callback.call(student.target);
                     }
                     student.currentStep++;
                 };
                 if (student.typeOfEvent !== 'several' && student.typeOfEvent !== 'through') {
-                    if (eventSndLvl === undefined && student.event === eventFstLvl ||
-                    eventSndLvl !== undefined && student.event.indexOf(eventFstLvl) !== -1) {
-                        student.callBack.call(student.target);
+                    if (oneEvent[1] === undefined && student.event === oneEvent[0] ||
+                    oneEvent[1] !== undefined && student.event.indexOf(oneEvent[0]) !== -1) {
+                        student.callback.call(student.target);
                     };
                 }
             });
-        },
+        }
+    },
         several: function (eventName, student, callback, n) {
             subscriptions.push({target: student,
                             event: eventName,
-                            callBack: callback,
+                            callback: callback,
                             typeOfEvent: 'several',
                             count: n,
                             currentCount: 0});
@@ -54,7 +61,7 @@ module.exports = function () {
         through: function (eventName, student, callback, n) {
             subscriptions.push({target: student,
                             event: eventName,
-                            callBack: callback,
+                            callback: callback,
                             typeOfEvent: 'through',
                             step: n,
                             currentStep: 1});

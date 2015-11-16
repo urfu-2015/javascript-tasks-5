@@ -1,4 +1,5 @@
 module.exports = function () {
+
     return {
         events: {},
         on: function (eventName, person, callback) {
@@ -7,6 +8,7 @@ module.exports = function () {
                 callback: callback
             };
             addEvent(this.events, eventName, event);
+            return this;
         },
 
         off: function (eventName, person) {
@@ -15,7 +17,6 @@ module.exports = function () {
             }
             var _this = this.events;
             Object.keys(_this).forEach(function (key) {
-                console.log(this.events);
                 if (key.indexOf(eventName) !== -1) {
                     var changeEvents = _this[key].filter(function (event) {
                         return event.person !== person;
@@ -23,8 +24,8 @@ module.exports = function () {
                     _this[key] = changeEvents;
                 }
             });
-
             this.events = _this;
+            return this;
         },
 
         emit: function (eventName) {
@@ -33,22 +34,29 @@ module.exports = function () {
         },
 
         several: function (eventName, person, callback, n) {
-            var event = {
-                person: person,
-                callback: callback,
-                several: n
+            var count = 0;
+            _this = this;
+            var newCallback = function () {
+                count++;
+                if (count <= n) {
+                    callback.call(this);
+                } else {
+                    _this.off(eventName, person);
+                }
             };
-            addEvent(this.events, eventName, event);
+            this.on(eventName, person, newCallback);
         },
 
         through: function (eventName, person, callback, n) {
-            var event = {
-                person: person,
-                callback: callback,
-                through: n,
-                current: 1
+            var count = 0;
+            var newCallback = function () {
+                count++;
+                if (count === n) {
+                    callback.call(this);
+                    count = 0;
+                }
             };
-            addEvent(this.events, eventName, event);
+            this.on(eventName, person, newCallback);
         }
     };
 };
@@ -57,21 +65,7 @@ function emitEvents(eventsList, namespace) {
     namespace.forEach(function (name) {
         if (eventsList.hasOwnProperty(name)) {
             eventsList[name].forEach(function (event) {
-                var isSeveral = event.hasOwnProperty('several');
-                var isThrough = event.hasOwnProperty('through');
-                if (isSeveral && event.several > 0) {
-                    event.callback.call(event.person);
-                    --event.several;
-                }
-                if (isThrough) {
-                    if (event.current % event.through === 0) {
-                        event.callback.call(event.person);
-                    }
-                    ++event.current;
-                }
-                if (!isSeveral && !isThrough) {
-                    event.callback.call(event.person);
-                }
+                event.callback.call(event.person);
             });
         }
     });

@@ -2,65 +2,79 @@
 
 module.exports = function () {
     return {
+        _students: [],
+        _events: [],
+
         on: function (eventName, student, callback) {
-            if (!this[eventName]) {
-                this[eventName] = [];
-            }
-            this[eventName].push({obj: student, cb: callback.bind(student)});
+            this.createEventHandler(eventName, student, callback);
         },
 
         off: function (eventName, student) {
-            if (!this[eventName]) {
+            var index = this._students.indexOf(student);
+            if (index === -1) {
                 return;
             }
 
-            this[eventName].forEach((item, index, arr) => {
-                if (item.obj === student) {
-                    arr.splice(index, 1);
-                }
-            });
+            var events = this._events[index];
+            eventName = eventName.split('.');
 
-            for (var prop in this) {
-                if (Array.isArray(this[prop]) &&
-                    new RegExp('^' + eventName + '.', 'i').test(prop)) {
-                    this[prop].splice(0, this[prop].length);
+            for (var i = 0; i < eventName.length; i++) {
+                if (i === eventName.length - 1) {
+                    delete events[eventName[i]];
+                    break;
                 }
+                events = events[eventName[i]];
             }
         },
 
         emit: function (eventName) {
-            do {
-                if (!this[eventName]) {
-                    break;
-                }
-
-                this[eventName].forEach(item => {
-                    if ((item.hasOwnProperty('each') && (++item.count % item.each === 0)) ||
-                        (item.hasOwnProperty('count') && !item.hasOwnProperty('each') &&
-                        item.count--) ||
-                        (!item.hasOwnProperty('count') && !item.hasOwnProperty('each'))) {
-                        item.cb();
+            eventName = eventName.split('.');
+            for (var i = 0; i < this._students.length; i++) {
+                var events = this._events[i];
+                for (var j = 0; j < eventName.length; j++) {
+                    if (!events.hasOwnProperty(eventName[j])) {
+                        break;
                     }
-                });
-
-                var parts = eventName.split('.');
-                parts.pop();
-                eventName = parts.join('.');
-            } while (eventName);
+                    events[eventName[j]].callback.call(this._students[i]);
+                    events = events[eventName[j]];
+                }
+            }
         },
 
         several: function (eventName, student, callback, n) {
-            this.on(eventName, student, callback);
-            this.lastElement(eventName).count = n;
+            this.createEventHandler(eventName, student, callback, undefined, n + 1);
         },
 
         through: function (eventName, student, callback, n) {
-            this.several(eventName, student, callback, 0);
-            this.lastElement(eventName).each = n;
+            this.createEventHandler(eventName, student, callback, n);
         },
 
-        lastElement: function (eventName) {
-            return this[eventName][this[eventName].length - 1];
+        createEventHandler: function (eventName, student, callback, eachCall, maxCalls) {
+            if (!Boolean(this._students.indexOf(student) + 1)) {
+                this._students.push(student);
+                this._events.push({});
+            }
+
+            var currentCall = 1;
+            var index = this._students.indexOf(student);
+            var events = this._events[index];
+            eventName = eventName.split('.');
+
+            eventName.forEach(name => {
+                if (!events.hasOwnProperty(name)) {
+                    events[name] = {};
+                }
+                events = events[name];
+            });
+
+            events['callback'] = function () {
+                if (isNaN(eachCall) && isNaN(maxCalls) ||
+                    (!isNaN(eachCall) && currentCall % eachCall === 0) ||
+                    (!isNaN(maxCalls) && maxCalls > currentCall)) {
+                    callback.call(this);
+                }
+                currentCall++;
+            };
         }
     };
 };

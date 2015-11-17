@@ -52,14 +52,20 @@ module.exports = function () {
         },
 
         several: function (eventName, student, callback, n) {
+            var repeat = parseInt(n);
+            if (!(n > 0) || !repeat) {
+                return;
+            }
             eventInit(eventName);
-            var repeat = n;
             events[eventName].push({student, callback, repeat});
         },
 
-        through: (eventName, student, callback, n) => {
+        through: function (eventName, student, callback, n) {
+            var regularity = parseInt(n);
+            if (!n > 0 || !regularity) {
+                return;
+            }
             eventInit(eventName);
-            var regularity = n;
             var counter = 0;
             events[eventName].push({student, callback, regularity, counter});
         }

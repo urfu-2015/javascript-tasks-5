@@ -53,7 +53,7 @@ module.exports = function () {
 
         several: function (eventName, student, callback, n) {
             var repeat = parseInt(n);
-            if (!(n > 0) || !repeat) {
+            if (!(repeat > 0)) {
                 return;
             }
             eventInit(eventName);
@@ -62,7 +62,7 @@ module.exports = function () {
 
         through: function (eventName, student, callback, n) {
             var regularity = parseInt(n);
-            if (!n > 0 || !regularity) {
+            if (!(regularity > 0)) {
                 return;
             }
             eventInit(eventName);

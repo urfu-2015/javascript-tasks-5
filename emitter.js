@@ -43,11 +43,8 @@ module.exports = function () {
                         break;
                     }
                     var action = currentLayer[eventLayers[i]].action;
-                    if (action === undefined) {
-
-                    } else {
-                        var bindedAction = action.bind(this.students[index]);
-                        bindedAction();
+                    if (action !== undefined) {
+                        action.call(this.students[index]);
                     }
                     currentLayer = currentLayer[eventLayers[i]];
                 }

@@ -35,7 +35,10 @@ module.exports = function () {
                     if (!events.hasOwnProperty(eventName[j])) {
                         break;
                     }
-                    events[eventName[j]].callback.call(this._students[i]);
+                    if (events[eventName[j]].callback !== undefined) {
+                        events[eventName[j]].callback.call(this._students[i]);
+                    }
+
                     events = events[eventName[j]];
                 }
             }

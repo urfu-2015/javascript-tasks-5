@@ -96,14 +96,9 @@ module.exports = function () {
                 firstLevelEventFlag = true;
                 eventNames.push(eventNames[0]);
             }
-            // Если на переданное событие никто не подписан, сохраним его вызов и выйдем
-            if (!eventsInfo[eventNames[0]] ||
-                (eventsInfo[eventNames[0]] && !eventsInfo[eventNames[0]][eventNames[1]])) {
-                if (!eventsStatus[eventName]) {
-                    eventsStatus[eventName] = {count: 0};
-                } else {
-                    eventsStatus[eventName]++;
-                }
+            // Если переданное событие еще не вызывалось, создадим счетчик для него
+            if (!eventsStatus[eventName]) {
+                eventsStatus[eventName] = {count: 0};
                 return;
             }
             // Если событие первого уровня, то смотрим только его

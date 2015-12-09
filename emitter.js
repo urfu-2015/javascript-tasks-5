@@ -12,8 +12,9 @@ module.exports = function () {
 
         off: function (eventName, student) {
             for (var i = 0; i < this.students.length; i++) {
-			    if ((this.students[i].event === eventName) && (this.students[i].name === student)) {
+			    if ((this.students[i].event).indexOf(eventName) != -1 && (this.students[i].name === student)) {
 				    this.students.splice(i,1);
+					i--;
 				}
 			}
 		},

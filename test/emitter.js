@@ -100,4 +100,26 @@ describe('Emitter', function () {
 
         expect(cb).to.have.been.calledOnce;
     });
+
+    it('Должен вызывать метод только один раз', function () {
+        var user = {};
+        var cb = sinon.spy();
+        var n = 1;
+        ee.several('name', user, cb, n);
+        ee.emit('name');
+        ee.emit('name');
+
+        expect(cb).to.have.been.calledOnce;
+    });
+    it('Должен вызывать метод только каждые n раз', function () {
+        var user = {};
+        var cb = sinon.spy();
+        var n = 2;
+        ee.through('name', user, cb, n);
+        ee.emit('name');
+        ee.emit('name');
+        ee.emit('name');
+
+        expect(cb).to.have.been.calledOnce;
+    });
 });

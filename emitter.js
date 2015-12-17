@@ -25,8 +25,9 @@ module.exports = function () {
                 events.forEach(function (event, index, events) {
                     var newEvent = event.split('.');
                     var newEventName = newEvent[0];
-                    for (var eve = 1; eve < lenEventName; eve++)
+                    for (var eve = 1; eve < lenEventName; eve++) {
                         newEventName += '.' + newEvent[eve];
+                    }
                     if (newEventName != eventName) {
                         newEvents.push(student.events[index]);
                         newFunctions.push(student.function[index]);
@@ -42,16 +43,18 @@ module.exports = function () {
             var events = [];
             level.forEach(function (event, index) {
                 if (index > 0) {
-                    events.push(events[index - 1] + '.' + event)
+                    events.push(events[index - 1] + '.' + event);
                 } else {
                     events.push(event);
                 }
             });
             this.students.forEach(function (student) {
                 events.forEach(function (event) {
-                    for (var index = 0; index < student.events.length; index++)
-                        if (student.events[index] == event)
-                            student.function[index].call(student)
+                    for (var index = 0; index < student.events.length; index++) {
+                        if (student.events[index] == event) {
+                            student.function[index].call(student);
+                        }
+                    }
                 });
             });
         },

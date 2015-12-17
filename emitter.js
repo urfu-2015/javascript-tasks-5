@@ -9,19 +9,31 @@ module.exports = function () {
                 this.students.push(student);
             }
             if (!student.hasOwnProperty('events')) {
-                student.events = {};
+                student.events = [];
+                student.function = [];
             }
-            student.events[eventName] = callback;
+            student.events.push(eventName);
+            student.function.push(callback);
         },
 
         off: function (eventName, student) {
+            var lenEventName = eventName.split('.').length;
             if (this.students.indexOf(student) !== -1) {
-                var events = Object.keys(student.events);
-                events.forEach(function (event) {
-                    if (event.indexOf(eventName) === 0) {
-                        delete student.events[event];
+                var events = student.events;
+                var newEvents = [];
+                var newFunctions = [];
+                events.forEach(function (event, index, events) {
+                    var newEvent = event.split('.');
+                    var newEventName = newEvent[0];
+                    for (var eve = 1; eve < lenEventName; eve++)
+                        newEventName += '.' + newEvent[eve];
+                    if (newEventName != eventName) {
+                        newEvents.push(student.events[index]);
+                        newFunctions.push(student.function[index]);
                     }
                 });
+                student.events = newEvents;
+                student.function = newFunctions;
             }
         },
 
@@ -37,9 +49,9 @@ module.exports = function () {
             });
             this.students.forEach(function (student) {
                 events.forEach(function (event) {
-                    if (Object.keys(student.events).indexOf(event) !== -1) {
-                        student.events[event].call(student);
-                    }
+                    for (var index = 0; index < student.events.length; index++)
+                        if (student.events[index] == event)
+                            student.function[index].call(student)
                 });
             });
         },

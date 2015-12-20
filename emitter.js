@@ -20,10 +20,11 @@ return {
 
     emit: function (eventName) {
         var events = eventName.split('.');
+        events[1] = events[0] + '.' + events[1];
         events.forEach(function(event) {
             if (event in subscribers) {
                 subscribers[event].forEach(function (person) {
-                    subscribers[event][person].func();
+                    person.func;
                 })
             }
         });

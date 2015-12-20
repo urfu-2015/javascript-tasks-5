@@ -1,23 +1,43 @@
 module.exports = function () {
-    return {
-        on: function (eventName, student, callback) {
-
-        },
-
-        off: function (eventName, student) {
-
-        },
-
-        emit: function (eventName) {
-
-        },
-
-        several: function (eventName, student, callback, n) {
-
-        },
-
-        through: function (eventName, student, callback, n) {
-
+    var subscribers = [];
+return {
+    on: function (eventName, student, callback) {
+        if (!subscribers[eventName]) {
+            subscribers[eventName] = [];
+            subscribers[eventName].push({name: student, func: callback});
+        } else {
+            if (!checkArray(student, eventName, subscribers)) {
+                subscribers[eventName].push({name: student, func: callback});
+            }
         }
-    };
+    },
+
+    off: function (eventName, student) {
+        return subscribers[eventName].filter(function (person) {
+            return (person.name != student);
+        });
+    },
+
+    emit: function (eventName) {
+        var events = eventName.split('.');
+        events.forEach(function(event) {
+            if (event in subscribers) {
+                subscribers[event].forEach(function (person) {
+                    person.func();
+                })
+            }
+        });
+    }
 };
+};
+
+
+function checkArray(student, event, array) {
+    var flag = false;
+    array[event].forEach(function (person) {
+        if (person.name === student) {
+            flag = true;
+        }
+    });
+    return flag;
+}

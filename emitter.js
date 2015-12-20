@@ -23,7 +23,7 @@ return {
         events.forEach(function(event) {
             if (event in subscribers) {
                 subscribers[event].forEach(function (person) {
-                    person.func();
+                    subscribers[event][person].func();
                 })
             }
         });

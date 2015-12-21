@@ -13,9 +13,10 @@ return {
     },
 
     off: function (eventName, student) {
-        return subscribers[eventName].filter(function (person) {
+        subscribers[eventName] =  subscribers[eventName].filter(function (person) {
             return (person.name != student);
         });
+        return subscribers;
     },
 
     emit: function (eventName) {

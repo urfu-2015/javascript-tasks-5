@@ -6,13 +6,13 @@ var sinon = require('sinon');
 
 chai.use(require('sinon-chai'));
 
-var getEmitter = require('../emitter');
+var getEmitter = require('../dist/emitter');
 
 describe('Emitter', function () {
     var ee;
 
     beforeEach(function () {
-        ee = getEmitter();
+        ee = new getEmitter();
     });
 
     it('Должен подписывать на события и рассылать сообщения подписчикам при вызове этого события', function () {
@@ -100,4 +100,67 @@ describe('Emitter', function () {
 
         expect(cb).to.have.been.calledOnce;
     });
+    describe('several', function() {
+        it('several работает', function () {
+            var user = {};
+            var cb = sinon.spy();
+
+            ee.several('name', user, cb, 2);
+
+            ee.emit('name');
+
+            expect(cb).to.have.been.calledTwice;
+        });
+
+        it('several отписывает', function () {
+            var user = {};
+            var cb = sinon.spy();
+
+            ee.several('name', user, cb, 2);
+            ee.off('name', user);
+            ee.emit('name');
+            ee.emit('name');
+            ee.emit('name');
+            ee.emit('name');
+
+            expect(cb).to.not.have.been.called;
+        });
+
+    });
+
+
+    describe('through', function() {
+
+
+        it('through работает', function () {
+            var user = {};
+            var cb = sinon.spy();
+
+            ee.through('name', user, cb, 2);
+
+            ee.emit('name');
+            ee.emit('name');
+
+            expect(cb).to.have.been.calledOnce;
+        });
+
+        it('through отписывает', function () {
+            var user = {};
+            var cb = sinon.spy();
+
+            ee.through('name', user, cb, 2);
+            ee.off('name', user);
+            ee.emit('name');
+            ee.emit('name');
+            ee.emit('name');
+            ee.emit('name');
+
+            expect(cb).to.not.have.been.called;
+        });
+
+
+    })
+
+
+
 });

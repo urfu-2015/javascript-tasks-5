@@ -1,6 +1,6 @@
 'use strict';
 
-var getEmitter = require('./emitter');
+var getEmitter = require('./src/emitter');
 var lecturer = getEmitter();
 
 var daria = {

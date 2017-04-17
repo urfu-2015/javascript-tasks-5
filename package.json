@@ -8,7 +8,12 @@
     "sinon-chai": "^2.8.0"
   },
   "scripts": {
-    "test": "mocha test/* && npm run lint",
-    "lint": "jscs ."
+    "compile": "babel src --out-dir dist",
+    "start": "babel src  --watch --out-dir dist --source-maps",
+    "test": "npm run lint && npm run compile && mocha test/*",
+    "lint": "jscs src/"
+  },
+  "devDependencies": {
+    "babel": "^5.8.29"
   }
 }
